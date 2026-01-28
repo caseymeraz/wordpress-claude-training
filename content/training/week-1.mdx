@@ -1,0 +1,262 @@
+---
+title: "Week 1: Foundation"
+description: "Install Claude Code, create your first CLAUDE.md, and understand autonomous vs. advisory AI"
+week: 1
+order: 1
+---
+
+# Week 1: Foundation
+
+Welcome to the WordPress + Claude Code training! This week, you'll get Claude Code installed, create your first CLAUDE.md context file, and complete hands-on exercises to understand how autonomous AI assistance works.
+
+## Learning Objectives
+
+By the end of Week 1, you will:
+
+- ✅ Install and authenticate Claude Code CLI
+- ✅ Create a CLAUDE.md context file for a WordPress project
+- ✅ Understand the difference between autonomous and advisory AI
+- ✅ Complete a simple plugin modification using Claude Code
+- ✅ Learn to review git diffs after AI-generated changes
+
+## Time Commitment
+
+- **Installation & Setup**: 15 minutes
+- **Exercise 1 (CLAUDE.md)**: 45 minutes
+- **Exercise 2 (Plugin Modification)**: 45 minutes
+- **Quiz**: 15 minutes
+- **Total**: ~2 hours
+
+---
+
+## Pre-Training Setup
+
+### System Requirements
+
+- macOS or Linux (Windows WSL supported)
+- Git installed and configured
+- Terminal/command line access
+- Claude Pro subscription ($20/month per developer)
+
+### Installation
+
+```bash
+# Install Claude Code
+curl https://code.claude.com/install.sh | bash
+
+# Authenticate with your Claude account
+claude login
+
+# Verify installation
+claude --version
+```
+
+---
+
+## Exercise 1: Create Your First CLAUDE.md
+
+**Estimated Time**: 45 minutes
+
+### What is CLAUDE.md?
+
+CLAUDE.md is a context file that tells Claude Code about your project:
+- WordPress version and environment
+- Active plugins (especially ACF, Gutenberg blocks)
+- Custom post types and taxonomies
+- Security requirements
+- Performance requirements
+- Coding standards
+
+### Steps
+
+1. **Clone the training resources repository**:
+   ```bash
+   git clone https://github.com/your-org/wordpress-claude-resources
+   cd wordpress-claude-resources
+   ```
+
+2. **Navigate to your primary WordPress project**:
+   ```bash
+   cd /path/to/your/wordpress-project
+   mkdir -p .claude
+   ```
+
+3. **Copy the template**:
+   ```bash
+   cp /path/to/wordpress-claude-resources/.claude/CLAUDE_MD_TEMPLATE.md ./.claude/CLAUDE.md
+   ```
+
+4. **Customize for your project**:
+   Open `.claude/CLAUDE.md` and update:
+   - WordPress version
+   - PHP version
+   - Active plugins
+   - Custom post types
+   - ACF field groups
+   - Gutenberg blocks
+   - Theme information
+
+5. **Test Claude Code with context**:
+   ```bash
+   claude
+   ```
+
+   Try asking: "Explain the architecture of this WordPress project"
+
+### Success Criteria
+
+- ✅ CLAUDE.md created in `.claude/` directory
+- ✅ File includes your project-specific details
+- ✅ Claude Code understands your project structure
+
+---
+
+## Exercise 2: Simple Plugin Modification
+
+**Estimated Time**: 45 minutes
+
+### Task
+
+Add a dismissible admin notice to an existing plugin that shows when the plugin is first activated.
+
+### Requirements
+
+- Admin notice should appear after plugin activation
+- User can dismiss the notice
+- Dismissal is saved to user meta (doesn't show again)
+- Notice includes a "Get Started" link
+
+### Steps
+
+1. **Start Claude Code session**:
+   ```bash
+   cd /path/to/your/plugin
+   claude
+   ```
+
+2. **Give Claude the task**:
+   ```
+   Add a dismissible admin notice to this plugin that shows when
+   the plugin is first activated. Requirements:
+   - Show after activation only
+   - User can dismiss it
+   - Save dismissal to user meta
+   - Include a "Get Started" link to the plugin settings page
+   - Follow WordPress coding standards
+   ```
+
+3. **Review the changes**:
+   ```bash
+   git diff
+   ```
+
+4. **Test the functionality**:
+   - Deactivate and reactivate the plugin
+   - Verify the notice appears
+   - Click "Dismiss" and verify it doesn't show again
+   - Check that the code follows WordPress coding standards
+
+5. **Run PHPCS** (if available):
+   ```bash
+   vendor/bin/phpcs --standard=WordPress path/to/modified/file.php
+   ```
+
+### Success Criteria
+
+- ✅ Claude made changes directly to your files (not just suggestions)
+- ✅ Admin notice appears after activation
+- ✅ Notice is dismissible
+- ✅ No PHPCS violations
+- ✅ You understand how to review Claude's changes
+
+### Key Learnings
+
+- **Autonomous vs Advisory**: Claude Code makes changes directly vs ChatGPT suggesting code to copy
+- **Always review git diff**: Never blindly accept AI-generated code
+- **Iterate if needed**: If the first attempt isn't perfect, ask Claude to refine
+
+---
+
+## Quiz: Understanding Claude Code
+
+Test your understanding of Week 1 concepts.
+
+### Questions
+
+1. **What is the fundamental difference between ChatGPT and Claude Code?**
+   - [ ] ChatGPT is smarter
+   - [ ] Claude Code makes changes to files directly
+   - [ ] ChatGPT is free
+   - [ ] Claude Code only works with WordPress
+
+2. **How does CLAUDE.md improve Claude Code's responses?**
+   - [ ] It doesn't, it's optional
+   - [ ] It provides project-specific context
+   - [ ] It makes Claude faster
+   - [ ] It adds security checks
+
+3. **True/False: You should copy Claude's code and paste it into your editor.**
+   - [ ] True
+   - [ ] False
+
+4. **What should you always review after Claude makes changes?**
+   - [ ] The Claude Code logs
+   - [ ] The git diff
+   - [ ] The WordPress admin
+   - [ ] Your email
+
+5. **What's the first step before asking Claude to modify code?**
+   - [ ] Open ChatGPT
+   - [ ] Backup your database
+   - [ ] Navigate to the project directory and start Claude
+   - [ ] Read the Claude Code documentation
+
+### Answers
+
+<details>
+<summary>Click to reveal answers</summary>
+
+1. **Claude Code makes changes to files directly** - Claude Code is autonomous and modifies your actual files, while ChatGPT is advisory and only suggests code.
+
+2. **It provides project-specific context** - CLAUDE.md tells Claude about your WordPress setup, plugins, and requirements.
+
+3. **False** - Claude Code makes changes directly to your files. You don't copy/paste anything.
+
+4. **The git diff** - Always review `git diff` to see exactly what Claude changed.
+
+5. **Navigate to the project directory and start Claude** - You need to be in your project folder so Claude has access to your codebase.
+
+</details>
+
+---
+
+## Week 1 Wrap-Up
+
+### Comfort Level Survey
+
+On a scale of 1-10, how comfortable do you feel with:
+
+- Installing and using Claude Code: ___/10
+- Creating and customizing CLAUDE.md: ___/10
+- Reviewing and validating Claude's changes: ___/10
+- Using Claude for WordPress development: ___/10
+
+**Team Target**: Average 6+/10
+
+### What's Next?
+
+- **Week 2**: WordPress Patterns - ACF field groups, Gutenberg blocks, security best practices
+- **Preparation**: Install WordPress Skills package (instructions coming in Week 2 kickoff)
+
+### Questions?
+
+Post in #claude-code-help on Slack or schedule 1-on-1 time with your team lead.
+
+---
+
+## Resources
+
+- [Claude Code Documentation](https://code.claude.com/docs)
+- [WordPress Coding Standards](https://github.com/WordPress/WordPress-Coding-Standards)
+- [Training Materials Repository](https://github.com/your-org/wordpress-claude-resources)
+- [Quick Reference Guide](/resources/quick-reference)

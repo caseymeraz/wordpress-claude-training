@@ -1,0 +1,286 @@
+---
+title: "Skills Library"
+description: "Learn about custom Claude Code skills for WordPress development"
+category: "resources"
+---
+
+# Skills Library
+
+Custom skills extend Claude Code with specialized commands for WordPress development. Think of them as power-ups for specific tasks.
+
+## What Are Skills?
+
+Skills are pre-packaged prompts and workflows that execute complex tasks with a single command. Instead of typing long, detailed prompts, you can use a skill like `/wp-perf-review` to trigger a comprehensive performance audit.
+
+### Benefits
+- ⚡ **Faster workflow**: One command instead of multiple prompts
+- 🎯 **Consistency**: Same audit process every time
+- 📚 **Best practices**: Skills encode expert knowledge
+- 🔄 **Reusable**: Use across all WordPress projects
+
+---
+
+## WordPress Performance Skills
+
+### `/wp-perf-review [path]`
+**Comprehensive performance audit** of WordPress code.
+
+**What it checks:**
+- Database query optimization (N+1 problems, missing indexes)
+- Hook usage and action/filter counts
+- Asset loading and enqueuing
+- Caching implementation (Transients, Object Cache)
+- Image optimization opportunities
+- JavaScript and CSS performance
+
+**Usage:**
+```bash
+# Audit entire theme
+/wp-perf-review wp-content/themes/my-theme
+
+# Audit specific plugin
+/wp-perf-review wp-content/plugins/my-plugin
+
+# Audit current directory
+/wp-perf-review .
+```
+
+**Output:**
+- Performance score (0-100)
+- Categorized findings (Critical, High, Medium, Low)
+- Specific file locations and line numbers
+- Recommended fixes with code examples
+
+---
+
+### `/wp-perf [path]`
+**Quick performance check** for rapid feedback.
+
+A lighter version of `/wp-perf-review` that focuses on the most common performance issues. Great for quick validation during development.
+
+**Usage:**
+```bash
+# Quick check during development
+/wp-perf includes/class-product.php
+```
+
+---
+
+## WordPress Security Skills
+
+### `/security-audit [path]`
+**Security vulnerability scan** for WordPress code.
+
+**What it checks:**
+- SQL injection vulnerabilities
+- XSS (Cross-Site Scripting) issues
+- CSRF (Cross-Site Request Forgery) protection
+- Input sanitization and validation
+- Output escaping
+- Capability checks and permissions
+- Nonce verification
+
+**Usage:**
+```bash
+# Audit admin functionality
+/security-audit wp-content/plugins/my-plugin/admin
+
+# Audit AJAX handlers
+/security-audit wp-content/themes/my-theme/includes/ajax.php
+```
+
+**Output:**
+- Security risk score
+- Vulnerability details with severity
+- File and line number references
+- Fix recommendations with code examples
+- OWASP category references
+
+---
+
+## How to Install Skills
+
+### Method 1: Marketplace (Recommended)
+```bash
+# In a Claude Code session
+/plugin marketplace add elvismdev/claude-wordpress-skills
+
+# Skills are now available immediately
+/wp-perf-review .
+```
+
+### Method 2: Manual Installation
+```bash
+# Clone the skills repository
+git clone https://github.com/elvismdev/claude-wordpress-skills ~/.claude/skills/wordpress
+
+# Skills will be available in your next session
+```
+
+---
+
+## Using Skills Effectively
+
+### Run Before Every PR
+Make it a habit to run security and performance audits:
+```bash
+# Before committing
+/security-audit .
+/wp-perf-review .
+
+# Review findings
+# Fix issues
+# Commit
+```
+
+### Combine with Hooks
+Configure your `.claude/hooks.json` to automatically run skills:
+```json
+{
+  "hooks": [
+    {
+      "name": "pre-commit-security",
+      "pattern": "git commit",
+      "action": "/security-audit .",
+      "enabled": true
+    },
+    {
+      "name": "pre-commit-performance",
+      "pattern": "git commit",
+      "action": "/wp-perf .",
+      "enabled": true
+    }
+  ]
+}
+```
+
+### Integrate with CI/CD
+Skills can run in automated pipelines:
+```bash
+# In GitHub Actions or GitLab CI
+- name: Security Audit
+  run: |
+    claude --non-interactive --command "/security-audit wp-content"
+```
+
+---
+
+## Available WordPress Skills
+
+| Skill | Purpose | Speed | Week Introduced |
+|-------|---------|-------|-----------------|
+| `/wp-perf-review` | Full performance audit | 2-3 min | Week 2 |
+| `/wp-perf` | Quick performance check | 30 sec | Week 2 |
+| `/security-audit` | Security vulnerability scan | 1-2 min | Week 3 |
+| `/wp-docs` | Generate WordPress documentation | 1 min | Week 4 |
+| `/wp-test` | Create PHPUnit tests | 2 min | Week 5 |
+
+---
+
+## Creating Custom Skills
+
+You can create project-specific skills for your team's common tasks.
+
+### Example: Custom Block Generator
+```bash
+# Create skill file
+mkdir -p ~/.claude/skills/my-team
+nano ~/.claude/skills/my-team/create-block.md
+```
+
+**Skill content:**
+```markdown
+---
+name: create-acf-block
+description: Create a custom ACF block with our team's standards
+---
+
+Create a new ACF block with the following requirements:
+
+1. Block directory: wp-content/themes/my-theme/blocks/[block-name]
+2. Include:
+   - block.json with metadata
+   - block.php with render callback
+   - style.css following our naming conventions
+   - script.js with initialization
+3. Register in functions.php
+4. Follow our ACF field group naming: "Block: [Block Name]"
+5. Include inline documentation
+6. Add to our blocks list in CLAUDE.md
+
+Block name: {name}
+Block description: {description}
+ACF fields: {fields}
+```
+
+### Usage:
+```bash
+/create-acf-block name="testimonial-slider" description="Display client testimonials" fields="heading, testimonials (repeater: name, quote, image)"
+```
+
+---
+
+## Skill Best Practices
+
+### ✅ DO
+- **Run skills before commits** - Catch issues early
+- **Review skill output** - Don't blindly follow all recommendations
+- **Update skills regularly** - Get latest improvements
+- **Share custom skills** - Help your team be consistent
+- **Use in code reviews** - Validate PR quality
+
+### ❌ DON'T
+- **Skip manual testing** - Skills find common issues, not everything
+- **Ignore context** - Some "issues" may be intentional
+- **Over-rely on automation** - Use judgment and expertise
+- **Forget to update** - Old skills may miss new best practices
+
+---
+
+## Troubleshooting Skills
+
+### Skill Not Found
+```bash
+# List installed skills
+/plugin list
+
+# Reinstall if missing
+/plugin marketplace add elvismdev/claude-wordpress-skills
+```
+
+### Skill Errors
+```bash
+# Check skill syntax
+claude skills validate wordpress
+
+# View skill details
+/plugin info elvismdev/claude-wordpress-skills
+```
+
+### Slow Skills
+Some skills analyze large codebases and may take 2-3 minutes. You can:
+- Target specific directories instead of `.`
+- Run in background with `&`
+- Schedule during breaks
+
+---
+
+## Coming Soon
+
+### Planned WordPress Skills
+- `/wp-migrate` - Database migration helper
+- `/wp-debug` - Advanced debugging workflow
+- `/wp-i18n` - Internationalization checker
+- `/wp-a11y` - Accessibility audit
+- `/wp-seo` - On-page SEO analysis
+
+### Community Skills
+Check the [Claude Code marketplace](https://marketplace.claude.com) for community-contributed WordPress skills.
+
+---
+
+## Need Help?
+
+- Review [Week 2 Training](/training/week-2) for skills installation walkthrough
+- Check [Quick Reference](/resources/quick-reference) for common skill commands
+- Ask in **#claude-code-help** on Slack

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "training-week-1",
+    "title": "Week 1: Foundation",
+    "description": "Install Claude Code, create your first CLAUDE.md, and understand autonomous vs. advisory AI",
+    "content": "\n Week 1: Foundation\n\nWelcome to the WordPress + Claude Code training! This week, you'll get Claude Code installed, create your first CLAUDE.md context file, and complete hands-on exercises to understand how autonomous AI assistance works.\n\n Learning Objectives\n\nBy the end of Week 1, you will:\n\n- ✅ Install and authenticate Claude Code CLI\n- ✅ Create a CLAUDE.md context file for a WordPress project\n- ✅ Understand the difference between autonomous and advisory AI\n- ✅ Complete a simple plugin modif",
+    "url": "/training/week-1",
+    "category": "training"
+  },
+  {
+    "id": "resources-quick-reference",
+    "title": "Quick Reference",
+    "description": "Essential commands, prompts, and best practices for WordPress development with Claude Code",
+    "content": "\n Claude Code Quick Reference - WordPress Development\n\n Essential Commands\n\n| Command | Purpose | Example |\n|---------|---------|---------|\n| claude | Start new session | cd /path/to/project && claude |\n| claude --continue | Resume last session | claude --continue |\n| /wp-perf-review [path] | Full performance audit | /wp-perf-review . |\n| /security-audit [path] | Security scan | /security-audit wp-content/plugins/my-plugin |\n| /clear | Reset session context | /clear |\n| /context | View context u",
+    "url": "/resources/quick-reference",
+    "category": "resources"
+  },
+  {
+    "id": "resources-skills",
+    "title": "Skills Library",
+    "description": "Learn about custom Claude Code skills for WordPress development",
+    "content": "\n Skills Library\n\nCustom skills extend Claude Code with specialized commands for WordPress development. Think of them as power-ups for specific tasks.\n\n What Are Skills?\n\nSkills are pre-packaged prompts and workflows that execute complex tasks with a single command. Instead of typing long, detailed prompts, you can use a skill like /wp-perf-review to trigger a comprehensive performance audit.\n\n Benefits\n- ⚡ Faster workflow: One command instead of multiple prompts\n- 🎯 Consistency: Same audit pro",
+    "url": "/resources/skills",
+    "category": "resources"
+  },
+  {
+    "id": "resources-templates",
+    "title": "Templates & Downloads",
+    "description": "Download starter templates and configuration files for your WordPress projects",
+    "content": "\n Templates & Downloads\n\nEssential template files to get started with Claude Code in your WordPress projects.\n\n CLAUDE.md Template\n\nThe CLAUDE.md file provides context to Claude about your WordPress project. This template includes all the recommended sections for WordPress development.\n\n<div className=\"flex items-center gap-4 my-6\">\n  <a\n    href=\"/downloads/CLAUDE_MD_TEMPLATE.md\"\n    download\n    className=\"inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg h",
+    "url": "/resources/templates",
+    "category": "resources"
+  }
+]

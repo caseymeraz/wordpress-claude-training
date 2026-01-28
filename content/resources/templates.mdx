@@ -1,0 +1,170 @@
+---
+title: "Templates & Downloads"
+description: "Download starter templates and configuration files for your WordPress projects"
+category: "resources"
+---
+
+# Templates & Downloads
+
+Essential template files to get started with Claude Code in your WordPress projects.
+
+## CLAUDE.md Template
+
+The CLAUDE.md file provides context to Claude about your WordPress project. This template includes all the recommended sections for WordPress development.
+
+<div className="flex items-center gap-4 my-6">
+  <a
+    href="/downloads/CLAUDE_MD_TEMPLATE.md"
+    download
+    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+  >
+    📄 Download CLAUDE.md Template
+  </a>
+</div>
+
+### What's Included
+- WordPress version and environment details
+- Custom post types and taxonomies
+- ACF field groups and configurations
+- Gutenberg blocks inventory
+- Theme/plugin architecture notes
+- Development guidelines
+- Testing requirements
+
+### How to Use
+1. Download the template above
+2. Copy it to your project root as `.claude/CLAUDE.md`
+3. Fill in the sections with your project details
+4. Update as your project evolves
+
+---
+
+## Hooks Configuration
+
+The hooks.json file configures pre-commit hooks and automation for your Claude Code sessions. This template includes security checks, code quality tools, and WordPress coding standards.
+
+<div className="flex items-center gap-4 my-6">
+  <a
+    href="/downloads/HOOKS_CONFIG_TEMPLATE.json"
+    download
+    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+  >
+    ⚙️ Download Hooks Configuration
+  </a>
+</div>
+
+### What's Included
+- PHPCS (WordPress Coding Standards) integration
+- PHPUnit test execution
+- Security audit triggers
+- Git commit message formatting
+- Error log monitoring
+
+### How to Use
+1. Download the configuration above
+2. Copy to `~/.claude/hooks.json` (global) or `.claude/hooks.json` (project-specific)
+3. Customize patterns and commands for your workflow
+4. Enable/disable hooks as needed
+
+### Available Hook Types
+- **pre-commit**: Run before creating commits
+- **post-commit**: Run after commits succeed
+- **on-error**: Trigger when errors occur
+- **periodic**: Run at intervals during long sessions
+
+---
+
+## Quick Reference Guide
+
+Printer-friendly PDF version of the quick reference guide with essential commands, prompts, and best practices.
+
+<div className="flex items-center gap-4 my-6">
+  <a
+    href="/downloads/quick-reference.md"
+    download
+    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+  >
+    📋 Download Quick Reference
+  </a>
+</div>
+
+---
+
+## All Training Materials
+
+Download all templates and resources in a single ZIP file.
+
+<div className="flex items-center gap-4 my-6">
+  <a
+    href="#"
+    className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors opacity-50 cursor-not-allowed"
+  >
+    📦 Download All (Coming Soon)
+  </a>
+</div>
+
+---
+
+## Using the Templates
+
+### Step 1: Project Setup
+```bash
+# Navigate to your WordPress project
+cd /path/to/wordpress-project
+
+# Create .claude directory
+mkdir -p .claude
+
+# Copy CLAUDE.md template
+cp /path/to/CLAUDE_MD_TEMPLATE.md .claude/CLAUDE.md
+
+# Edit to match your project
+nano .claude/CLAUDE.md
+```
+
+### Step 2: Configure Hooks (Optional)
+```bash
+# Copy hooks configuration
+cp /path/to/HOOKS_CONFIG_TEMPLATE.json ~/.claude/hooks.json
+
+# Or edit directly
+claude hooks edit
+```
+
+### Step 3: Start Your First Session
+```bash
+# Start Claude Code in your project
+claude
+
+# Claude will now have context from your CLAUDE.md file
+```
+
+---
+
+## Template Maintenance
+
+### Keep Templates Updated
+As your project evolves, remember to update your CLAUDE.md file:
+- ✅ After adding new ACF field groups
+- ✅ When creating new custom post types
+- ✅ After installing new plugins
+- ✅ When project requirements change
+- ✅ After architecture decisions
+
+### Version Control
+Consider committing `.claude/CLAUDE.md` to your repository so the entire team has consistent context. Exclude sensitive information like API keys.
+
+```bash
+# Add to git
+git add .claude/CLAUDE.md
+git commit -m "Add Claude Code context file"
+```
+
+---
+
+## Need Help?
+
+If you have questions about using these templates:
+- Check the [Quick Reference](/resources/quick-reference) guide
+- Review the [Week 1 Training](/training/week-1) materials
+- Ask in **#claude-code-help** on Slack

@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "postToolUse": [
+      {
+        "pattern": "Edit.*\\.php$|Write.*\\.php$",
+        "command": "vendor/bin/phpcs --standard=WordPress-Core {{file}} --report=summary",
+        "description": "WordPress coding standards check after PHP edits"
+      },
+      {
+        "pattern": "Edit.*\\.php$|Write.*\\.php$",
+        "command": "vendor/bin/phpcbf --standard=WordPress {{file}}",
+        "description": "Auto-fix WordPress coding standards violations"
+      }
+    ],
+    "preToolUse": [
+      {
+        "pattern": "Bash.*git.*commit",
+        "command": "vendor/bin/phpcs --standard=WordPress . --report=summary",
+        "description": "Full coding standards check before commit"
+      },
+      {
+        "pattern": "Bash.*git.*commit",
+        "command": "vendor/bin/phpunit",
+        "description": "Run all tests before commit"
+      }
+    ]
+  }
+}
