@@ -9,6 +9,8 @@ import {
   LayoutDashboard,
   FileText,
   GraduationCap,
+  Sparkles,
+  MapIcon,
 } from 'lucide-react';
 
 const navigation = [
@@ -16,18 +18,30 @@ const navigation = [
     title: 'Getting Started',
     items: [
       { title: 'Home', href: '/', icon: Home },
+      { title: 'Training Overview', href: '/training/overview', icon: MapIcon },
       { title: 'Dashboard', href: '/dashboard/progress', icon: LayoutDashboard },
     ],
   },
   {
-    title: 'Training',
+    title: 'Core Training',
     items: [
       { title: 'Week 1: Foundation', href: '/training/week-1', icon: GraduationCap },
       { title: 'Week 2: WP Patterns', href: '/training/week-2', icon: GraduationCap },
       { title: 'Week 3: Debugging', href: '/training/week-3', icon: GraduationCap },
       { title: 'Week 4: Automation', href: '/training/week-4', icon: GraduationCap },
-      { title: 'Week 5: Custom Skills', href: '/training/week-5', icon: GraduationCap },
+      { title: 'Week 5: Advanced Features', href: '/training/week-5', icon: GraduationCap },
       { title: 'Week 6: Production', href: '/training/week-6', icon: GraduationCap },
+      { title: 'Week 7: WordPress 7.0', href: '/training/week-7', icon: GraduationCap },
+      { title: 'Week 8: MCP Integration', href: '/training/week-8', icon: GraduationCap },
+    ],
+  },
+  {
+    title: 'Advanced Track',
+    items: [
+      { title: 'Week 9: Headless WP', href: '/training/week-9', icon: Sparkles },
+      { title: 'Week 10: Performance', href: '/training/week-10', icon: Sparkles },
+      { title: 'Week 11: Advanced Debug', href: '/training/week-11', icon: Sparkles },
+      { title: 'Week 12: WordPress AI', href: '/training/week-12', icon: Sparkles },
     ],
   },
   {

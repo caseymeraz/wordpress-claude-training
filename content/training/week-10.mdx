@@ -1,0 +1,748 @@
+---
+title: "Week 10: Performance & Security Deep Dive"
+description: "Master performance crisis response and comprehensive security audits for production WordPress"
+week: 10
+order: 10
+---
+
+# Week 10: Performance & Security Deep Dive
+
+**Advanced Track - Optional**
+
+This week tackles the most critical production WordPress challenges: out-of-memory errors, N+1 query problems, and comprehensive security vulnerabilities. Learn to diagnose performance crises and implement enterprise-grade security measures.
+
+## Learning Objectives
+
+- Diagnose and resolve out-of-memory (OOM) errors
+- Identify and optimize N+1 database queries
+- Implement Redis object caching for WordPress
+- Conduct OWASP Top 10 security audits
+- Build performance monitoring workflows
+- Handle production security incidents
+
+## Time Commitment
+
+- Exercise 1: 45 minutes (OOM Error Diagnosis & Resolution)
+- Exercise 2: 45 minutes (N+1 Query Optimization)
+- Exercise 3: 45 minutes (Redis Object Cache Implementation)
+- **Total: ~2 hours 15 minutes**
+
+## Prerequisites
+
+- Completion of Weeks 1-8 (Core Training)
+- Server access (SSH, database access)
+- Basic Linux command-line skills
+- Understanding of WordPress database structure
+
+---
+
+## Exercise 1: Out-of-Memory Error Diagnosis & Resolution (45 min)
+
+**Task:** Diagnose and fix a WordPress site experiencing fatal out-of-memory errors under load.
+
+**Context:** OOM errors are one of the most common WordPress production crises. They typically occur when plugins, themes, or queries consume excessive memory, especially under traffic spikes. This exercise teaches systematic diagnosis and resolution.
+
+### Requirements
+
+1. Reproduce the OOM error
+2. Use `/wp-performance-review` skill to analyze memory usage
+3. Identify memory-hogging operations
+4. Implement memory-efficient solutions
+5. Verify fixes under simulated load
+6. Set up memory monitoring
+
+### Part 1: Reproduce and Diagnose (15 min)
+
+**Trigger OOM Error:**
+```php
+// Intentionally memory-intensive code (DO NOT use in production)
+function memory_hog_example() {
+    // This will cause OOM on most servers
+    $posts = get_posts(array(
+        'posts_per_page' => -1,  // Load ALL posts
+        'post_type'      => 'any',
+    ));
+
+    $large_array = array();
+    foreach ($posts as $post) {
+        // Load all meta for each post (memory intensive)
+        $large_array[$post->ID] = get_post_meta($post->ID);
+    }
+
+    return $large_array;
+}
+```
+
+**Check Error Log:**
+```bash
+# WordPress error log
+tail -f /var/log/wordpress/error.log
+
+# PHP error log
+tail -f /var/log/php/error.log
+
+# Look for:
+# "Fatal error: Allowed memory size of 134217728 bytes exhausted"
+```
+
+**Use Claude's `/wp-performance-review` Skill:**
+```
+Run /wp-performance-review on this WordPress site and identify:
+1. Memory usage patterns
+2. Which plugins/themes use most memory
+3. Database queries consuming memory
+4. Recommended optimizations
+```
+
+### Part 2: Analyze Memory Usage (15 min)
+
+**Check WordPress Memory Limits:**
+```php
+// Add to wp-config.php temporarily for debugging
+define('WP_MEMORY_LIMIT', '256M');
+define('WP_MAX_MEMORY_LIMIT', '512M');
+
+// Check current limits
+echo 'WP Memory Limit: ' . WP_MEMORY_LIMIT . "\n";
+echo 'WP Max Memory Limit: ' . WP_MAX_MEMORY_LIMIT . "\n";
+echo 'PHP Memory Limit: ' . ini_get('memory_limit') . "\n";
+```
+
+**Install Query Monitor Plugin:**
+```bash
+wp plugin install query-monitor --activate
+```
+
+**Analyze Memory in Query Monitor:**
+- Navigate to problematic page
+- Check Query Monitor panel → Overview
+- Look for "Peak Memory Usage" (should be < 50% of limit)
+- Identify queries/operations using most memory
+
+**Profile with Xdebug (Advanced):**
+```bash
+# Install xdebug
+sudo apt-get install php-xdebug
+
+# Enable profiling in php.ini
+xdebug.mode=profile
+xdebug.output_dir=/tmp/xdebug
+xdebug.start_with_request=trigger
+
+# Trigger profiling
+curl -X GET "https://your-site.com/?XDEBUG_PROFILE=1"
+
+# Analyze profile
+# Use tools like KCacheGrind or Webgrind
+```
+
+### Part 3: Fix Common Memory Issues (15 min)
+
+**Issue 1: Loading All Posts**
+```php
+// ❌ BAD: Loads all posts into memory
+$all_posts = get_posts(array('posts_per_page' => -1));
+
+// ✅ GOOD: Paginate or limit queries
+$posts = new WP_Query(array(
+    'posts_per_page' => 50,  // Reasonable limit
+    'paged'          => get_query_var('paged'),
+));
+```
+
+**Issue 2: Loading All Post Meta**
+```php
+// ❌ BAD: Loads all meta for all posts
+foreach ($posts as $post) {
+    $all_meta = get_post_meta($post->ID);
+}
+
+// ✅ GOOD: Load only specific meta keys
+foreach ($posts as $post) {
+    $featured = get_post_meta($post->ID, 'featured', true);
+    $price = get_post_meta($post->ID, 'price', true);
+}
+```
+
+**Issue 3: Image Processing**
+```php
+// ❌ BAD: Process large images in memory
+function resize_all_images() {
+    $images = get_posts(array('post_type' => 'attachment', 'posts_per_page' => -1));
+    foreach ($images as $image) {
+        $file = get_attached_file($image->ID);
+        $img = imagecreatefromjpeg($file);  // Memory intensive!
+        // ... resize logic
+    }
+}
+
+// ✅ GOOD: Process in batches with WP-CLI
+// wp media regenerate --yes --only-missing
+
+// Or use Action Scheduler for background processing
+as_schedule_single_action(time(), 'process_images_batch', array('offset' => 0));
+```
+
+**Issue 4: Inefficient Plugin Code**
+Ask Claude:
+```
+This plugin is causing OOM errors. Refactor it to be memory efficient:
+
+[paste plugin code]
+
+Requirements:
+- Process data in batches
+- Use generators for large datasets
+- Unset variables when done
+- Limit query results
+```
+
+### Success Criteria
+
+- ✅ OOM error cause identified
+- ✅ Memory usage reduced by 50%+ on problem pages
+- ✅ Site handles 10x traffic without OOM
+- ✅ Memory limits properly configured
+- ✅ Monitoring in place (Query Monitor or APM)
+- ✅ Documentation of fixes for team
+
+### Skills Practiced
+
+- Performance profiling and diagnosis
+- Memory optimization techniques
+- WordPress query best practices
+- Production debugging under pressure
+- Monitoring and alerting setup
+
+---
+
+## Exercise 2: N+1 Query Elimination (45 min)
+
+**Task:** Identify and fix N+1 database query problems that are slowing down WordPress pages.
+
+**Context:** N+1 queries are the #1 cause of slow WordPress pages. They occur when code queries the database once per item instead of fetching all items at once. A page showing 20 posts might execute 100+ queries instead of 3-5.
+
+### Requirements
+
+1. Install Query Monitor plugin
+2. Identify pages with N+1 query patterns
+3. Refactor code to eliminate unnecessary queries
+4. Verify query reduction with Query Monitor
+5. Document query optimization patterns
+6. Add query monitoring to CI/CD
+
+### Part 1: Detect N+1 Queries (15 min)
+
+**Install Query Monitor:**
+```bash
+wp plugin install query-monitor --activate
+```
+
+**Navigate to Slow Page:**
+Open Query Monitor panel → Queries tab
+
+**Identify N+1 Patterns:**
+Look for queries like:
+```
+SELECT * FROM wp_posts WHERE ID = 123
+SELECT * FROM wp_posts WHERE ID = 124
+SELECT * FROM wp_posts WHERE ID = 125
+... (repeated 50 times)
+```
+
+**Common N+1 Scenarios:**
+1. **Post Meta in Loops** - `get_post_meta()` in `while(have_posts())`
+2. **Author Data** - `get_the_author()` for each post
+3. **Category/Term Data** - `get_the_category()` for each post
+4. **ACF Fields** - `get_field()` in loops without proper caching
+
+### Part 2: Fix Post Meta N+1 (15 min)
+
+**❌ Problem Code:**
+```php
+<?php
+// 1 query to get posts
+$posts = get_posts(array('posts_per_page' => 50));
+
+// 50 additional queries (N+1 problem!)
+foreach ($posts as $post) {
+    $subtitle = get_post_meta($post->ID, 'subtitle', true);
+    $price = get_post_meta($post->ID, 'price', true);
+
+    echo '<h2>' . $post->post_title . '</h2>';
+    echo '<p>' . $subtitle . '</p>';
+    echo '<span>$' . $price . '</span>';
+}
+?>
+```
+
+**✅ Fixed with `update_post_meta_cache()`:**
+```php
+<?php
+$posts = get_posts(array('posts_per_page' => 50));
+
+// Prime meta cache - 1 query gets ALL meta for ALL posts
+$post_ids = wp_list_pluck($posts, 'ID');
+update_post_meta_cache($post_ids);
+
+// Now get_post_meta() uses cached data - NO additional queries!
+foreach ($posts as $post) {
+    $subtitle = get_post_meta($post->ID, 'subtitle', true);
+    $price = get_post_meta($post->ID, 'price', true);
+
+    echo '<h2>' . $post->post_title . '</h2>';
+    echo '<p>' . $subtitle . '</p>';
+    echo '<span>$' . $price . '</span>';
+}
+?>
+```
+
+**Query Count Comparison:**
+- Before: 1 (posts) + 50 (meta) + 50 (meta) = 101 queries
+- After: 1 (posts) + 1 (all meta) = 2 queries
+
+### Part 3: Fix ACF N+1 (15 min)
+
+**❌ Problem Code:**
+```php
+<?php
+// Display team members with ACF fields
+$team = get_posts(array(
+    'post_type'      => 'team_member',
+    'posts_per_page' => 20,
+));
+
+// N+1: Each get_field() triggers a query
+foreach ($team as $member) {
+    $job_title = get_field('job_title', $member->ID);
+    $bio = get_field('bio', $member->ID);
+    $photo = get_field('photo', $member->ID);
+    $linkedin = get_field('linkedin', $member->ID);
+
+    // Display member...
+}
+?>
+```
+
+**✅ Fixed with ACF Cache:**
+```php
+<?php
+$team = get_posts(array(
+    'post_type'      => 'team_member',
+    'posts_per_page' => 20,
+));
+
+// Prime ACF cache
+$team_ids = wp_list_pluck($team, 'ID');
+acf_get_posts($team_ids);
+
+// Now get_field() uses cached data
+foreach ($team as $member) {
+    $job_title = get_field('job_title', $member->ID);
+    $bio = get_field('bio', $member->ID);
+    $photo = get_field('photo', $member->ID);
+    $linkedin = get_field('linkedin', $member->ID);
+
+    // Display member...
+}
+?>
+```
+
+### Part 4: Fix Term Query N+1
+
+**❌ Problem Code:**
+```php
+<?php
+// Get categories for each post in loop
+while (have_posts()) : the_post();
+    $categories = get_the_category();  // Query per post!
+    foreach ($categories as $cat) {
+        echo $cat->name . ', ';
+    }
+endwhile;
+?>
+```
+
+**✅ Fixed with `update_object_term_cache()`:**
+```php
+<?php
+global $wp_query;
+
+// Prime term cache
+$post_ids = wp_list_pluck($wp_query->posts, 'ID');
+update_object_term_cache($post_ids, 'post');
+
+// Now get_the_category() uses cached data
+while (have_posts()) : the_post();
+    $categories = get_the_category();
+    foreach ($categories as $cat) {
+        echo $cat->name . ', ';
+    }
+endwhile;
+?>
+```
+
+### Claude Prompt for N+1 Detection
+
+```
+Analyze this WordPress theme/plugin code and identify all N+1 query problems:
+
+[paste code]
+
+For each N+1 issue found:
+1. Show the problematic code section
+2. Explain why it's N+1
+3. Provide the optimized version
+4. Estimate query reduction (e.g., "50 queries → 2 queries")
+```
+
+### Success Criteria
+
+- ✅ All N+1 queries identified in theme/plugin
+- ✅ Query count reduced by 80%+ on affected pages
+- ✅ Page load time improved significantly
+- ✅ No performance regressions in other areas
+- ✅ Query optimization patterns documented
+- ✅ Team trained on avoiding N+1
+
+### Skills Practiced
+
+- Query performance analysis
+- WordPress caching mechanisms
+- Code refactoring for performance
+- Database query optimization
+- Performance measurement and validation
+
+---
+
+## Exercise 3: Redis Object Cache Implementation (45 min)
+
+**Task:** Implement Redis object caching to reduce database load and improve WordPress performance.
+
+**Context:** Redis is an in-memory data store that dramatically reduces database queries by caching frequently accessed data. It's essential for high-traffic WordPress sites.
+
+### Requirements
+
+1. Install Redis server
+2. Configure WordPress object cache
+3. Test cache hit rates
+4. Implement cache invalidation
+5. Monitor performance improvement
+6. Document cache strategy
+
+### Part 1: Redis Installation (15 min)
+
+**Install Redis Server (Ubuntu/Debian):**
+```bash
+# Install Redis
+sudo apt-get update
+sudo apt-get install redis-server
+
+# Start Redis
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+
+# Verify installation
+redis-cli ping
+# Should return: PONG
+```
+
+**Install Redis Server (macOS):**
+```bash
+# Install via Homebrew
+brew install redis
+
+# Start Redis
+brew services start redis
+
+# Verify
+redis-cli ping
+```
+
+**Test Redis Connection:**
+```bash
+# Connect to Redis CLI
+redis-cli
+
+# Set a test value
+SET test "Hello Redis"
+
+# Get the value
+GET test
+# Returns: "Hello Redis"
+
+# Exit
+EXIT
+```
+
+### Part 2: Configure WordPress Object Cache (15 min)
+
+**Install Redis Object Cache Plugin:**
+```bash
+# Via WP-CLI
+wp plugin install redis-cache --activate
+
+# Or manually from:
+# https://wordpress.org/plugins/redis-cache/
+```
+
+**Configure wp-config.php:**
+```php
+// Add before "/* That's all, stop editing! */"
+define('WP_REDIS_HOST', '127.0.0.1');
+define('WP_REDIS_PORT', 6379);
+define('WP_REDIS_PASSWORD', '');  // Set if Redis requires auth
+define('WP_REDIS_DATABASE', 0);
+define('WP_CACHE_KEY_SALT', 'your-site-name_');  // Unique per site
+
+// Optional: Configure cache timeout
+define('WP_REDIS_MAXTTL', 3600);  // 1 hour default
+```
+
+**Enable Object Cache:**
+```bash
+wp redis enable
+# Copies object-cache.php to wp-content/
+
+# Verify status
+wp redis status
+# Should show: "Connected" and cache hit rate
+```
+
+**Test Cache Working:**
+```php
+// Add to functions.php temporarily
+add_action('init', function() {
+    // Set a cached value
+    wp_cache_set('test_key', 'Hello from cache!', '', 3600);
+
+    // Get the value
+    $value = wp_cache_get('test_key');
+
+    error_log('Cached value: ' . $value);
+});
+```
+
+### Part 3: Monitor Cache Performance (15 min)
+
+**Check Cache Hit Rate:**
+```bash
+# Via WP-CLI
+wp redis info
+
+# Via Redis CLI
+redis-cli
+INFO stats
+
+# Look for:
+# keyspace_hits
+# keyspace_misses
+# Calculate hit rate: hits / (hits + misses) * 100
+```
+
+**Target Metrics:**
+- **Cache Hit Rate:** > 70% (Good), > 85% (Excellent)
+- **Memory Usage:** < 80% of allocated memory
+- **Evicted Keys:** 0 (if keys are being evicted, increase memory)
+
+**Monitor with Query Monitor:**
+- Install Query Monitor plugin
+- Navigate to site pages
+- Check "Object Cache" panel
+- Look for cache hits vs misses
+
+**Benchmark Before/After:**
+```bash
+# Before Redis
+ab -n 1000 -c 10 https://your-site.com/
+
+# After Redis
+ab -n 1000 -c 10 https://your-site.com/
+
+# Compare:
+# - Requests per second (should increase)
+# - Time per request (should decrease)
+```
+
+### Part 4: Cache Invalidation Strategy
+
+**Automatic Invalidation on Post Update:**
+```php
+// WordPress automatically flushes relevant caches on post updates
+// But you can add custom invalidation:
+
+add_action('save_post', 'custom_cache_invalidation', 10, 2);
+function custom_cache_invalidation($post_id, $post) {
+    // Clear specific caches when post is updated
+    wp_cache_delete('homepage_posts', 'custom');
+    wp_cache_delete('featured_posts', 'custom');
+
+    // Clear transients
+    delete_transient('sidebar_data');
+}
+```
+
+**Manual Cache Flush:**
+```bash
+# Flush Redis cache via WP-CLI
+wp cache flush
+
+# Flush via Redis CLI
+redis-cli FLUSHDB
+```
+
+**Selective Cache Invalidation:**
+```php
+// Cache expensive query result
+function get_top_posts() {
+    $cache_key = 'top_posts_30days';
+    $cached = wp_cache_get($cache_key, 'custom');
+
+    if (false !== $cached) {
+        return $cached;  // Return cached data
+    }
+
+    // Expensive query
+    $posts = get_posts(array(
+        'posts_per_page' => 10,
+        'meta_key'       => 'views',
+        'orderby'        => 'meta_value_num',
+        'date_query'     => array(
+            array('after' => '30 days ago'),
+        ),
+    ));
+
+    // Cache for 1 hour
+    wp_cache_set($cache_key, $posts, 'custom', 3600);
+
+    return $posts;
+}
+```
+
+### Cache Strategy Best Practices
+
+**What to Cache:**
+- ✅ Database query results
+- ✅ API responses
+- ✅ Computed/aggregated data
+- ✅ Expensive operations (sorting, filtering)
+
+**What NOT to Cache:**
+- ❌ User-specific data (unless keyed by user ID)
+- ❌ Frequently changing data
+- ❌ Data smaller than cache overhead
+
+**Cache TTL Guidelines:**
+```php
+// Short TTL (5-15 minutes)
+wp_cache_set('recent_comments', $comments, 'custom', 300);
+
+// Medium TTL (1-6 hours)
+wp_cache_set('popular_posts', $posts, 'custom', 3600);
+
+// Long TTL (24 hours+)
+wp_cache_set('site_statistics', $stats, 'custom', 86400);
+```
+
+### Success Criteria
+
+- ✅ Redis server installed and running
+- ✅ WordPress object cache enabled
+- ✅ Cache hit rate > 70%
+- ✅ Page load time improved by 30%+
+- ✅ Database queries reduced significantly
+- ✅ Cache invalidation strategy implemented
+- ✅ Monitoring in place
+- ✅ Documentation complete
+
+### Skills Practiced
+
+- Redis installation and configuration
+- WordPress object caching
+- Cache strategy design
+- Performance benchmarking
+- Cache invalidation patterns
+- Production caching best practices
+
+---
+
+## Week 10 Wrap-Up
+
+### Reflection Questions
+
+1. **OOM Diagnosis**: What was the root cause of your OOM error? How could it have been prevented?
+2. **N+1 Queries**: Why are N+1 queries so common in WordPress? How can you avoid them?
+3. **Caching Strategy**: When would you NOT use Redis caching?
+4. **Performance vs Complexity**: Does adding Redis add too much operational complexity for small sites?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 10 skills (1-10):
+- Diagnosing OOM errors: ___
+- Optimizing N+1 queries: ___
+- Redis configuration: ___
+- Cache strategy design: ___
+
+### Production Readiness Checklist
+
+**Performance:**
+- [ ] No OOM errors under load
+- [ ] Query count < 50 per page
+- [ ] Cache hit rate > 70%
+- [ ] Page load time < 1 second
+- [ ] Time to First Byte (TTFB) < 200ms
+
+**Monitoring:**
+- [ ] Query Monitor installed
+- [ ] Redis monitoring enabled
+- [ ] Error logging configured
+- [ ] Performance metrics tracked
+- [ ] Alerts set up for OOM/slow queries
+
+**Security:**
+- [ ] Redis password protected
+- [ ] No sensitive data cached
+- [ ] Cache keys properly sanitized
+- [ ] Rate limiting on APIs
+- [ ] Regular security audits
+
+### What's Next?
+
+**Week 11 Preview:** Advanced Debugging & Browser Integration
+- Use Plan Mode for safe code analysis
+- Create and restore checkpoints before risky changes
+- Debug WordPress admin UI with browser automation
+- Master complex multi-file bug hunts
+
+---
+
+## Performance Optimization Resources
+
+### Tools
+- [Query Monitor](https://wordpress.org/plugins/query-monitor/) - Essential debugging plugin
+- [Redis Object Cache](https://wordpress.org/plugins/redis-cache/) - Official Redis integration
+- [P3 (Plugin Performance Profiler)](https://wordpress.org/plugins/p3-profiler/) - Identify slow plugins
+- [Apache Bench (ab)](https://httpd.apache.org/docs/2.4/programs/ab.html) - Load testing
+- [New Relic APM](https://newrelic.com/) - Production monitoring
+
+### Documentation
+- [WordPress Object Cache](https://developer.wordpress.org/reference/classes/wp_object_cache/)
+- [Redis Documentation](https://redis.io/documentation)
+- [WordPress Performance Handbook](https://developer.wordpress.org/apis/handbook/performance/)
+
+### Further Reading
+- [Debugging WordPress Performance](https://codex.wordpress.org/WordPress_Optimization)
+- [Redis Best Practices](https://redis.io/topics/optimization)
+- [Database Query Optimization](https://developer.wordpress.org/advanced-administration/optimize/optimize-database/)
+
+---
+
+## Need Help?
+
+- Ask Claude to explain any performance concepts
+- Use `/wp-performance-review` for automated analysis
+- Test changes in staging before production
+- Always benchmark before and after optimization
+- Document all performance fixes for your team
+
+**Remember:** Performance optimization is iterative. Fix the biggest bottlenecks first, measure the impact, then move to the next issue!

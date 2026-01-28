@@ -1,0 +1,584 @@
+---
+title: "Week 7: WordPress 7.0 & Block Themes"
+description: "Prepare for WordPress 7.0 and master Full Site Editing with Claude Code"
+week: 7
+order: 7
+---
+
+# Week 7: WordPress 7.0 Preparation & Block Themes
+
+Welcome to the advanced curriculum! This week prepares you for WordPress 7.0 (launching April 9, 2026) and teaches you to build modern block themes. Full Site Editing (FSE) is now mandatory—let's master it with Claude's help.
+
+## Learning Objectives
+
+- Detect and replace deprecated WordPress functions
+- Convert classic PHP templates to block patterns
+- Generate and customize theme.json
+- Understand Full Site Editing (FSE) architecture
+- Prepare codebase for WordPress 7.0 compatibility
+
+## Time Commitment
+
+- Exercise 1: 45 minutes (Deprecated Function Audit)
+- Exercise 2: 60 minutes (Classic to Block Theme Conversion)
+- Exercise 3: 30 minutes (theme.json Generation & Customization)
+- **Total: ~2 hours 15 minutes**
+
+---
+
+## Exercise 1: WordPress 7.0 Compatibility Audit (45 min)
+
+**Task:** Audit your WordPress codebase for deprecated functions and prepare for WordPress 7.0.
+
+**Context:** WordPress 7.0 deprecates several functions. Use Claude to scan your project and create a compatibility report.
+
+### Requirements
+
+1. Scan entire WordPress project for deprecated functions
+2. Generate compatibility report with findings
+3. Fix at least 3 deprecated function calls
+4. Document the replacements used
+5. Create a "WordPress 7.0 Readiness Checklist"
+
+### Deprecated Functions to Check
+
+- `query_posts()` → Use `WP_Query`
+- `wp_get_http()` → Use `wp_remote_get()`
+- `wp_specialchars()` → Use `esc_html()`
+- `screen_icon()` → Removed, use CSS
+- `get_bloginfo('text_direction')` → Use `is_rtl()`
+
+### Success Criteria
+
+- ✅ Claude scans entire project and generates report
+- ✅ All deprecated functions identified with line numbers
+- ✅ At least 3 functions replaced with modern equivalents
+- ✅ Compatibility checklist created
+- ✅ No errors after running updated code
+
+### Skills Practiced
+
+- Code auditing with Claude
+- WordPress version compatibility
+- Modern WordPress API usage
+- Documentation of technical debt
+
+### Example Prompt
+
+```
+Scan this WordPress project for functions deprecated in WordPress 7.0.
+Generate a report with:
+1. Each deprecated function found
+2. File path and line number
+3. Recommended modern replacement
+4. Priority (critical/medium/low)
+
+Then help me fix the critical issues.
+```
+
+### Common Deprecated Functions
+
+**Already Deprecated (Fix Now):**
+```php
+// ❌ Don't use
+query_posts('showposts=10');
+
+// ✅ Use instead
+$query = new WP_Query(array('posts_per_page' => 10));
+```
+
+```php
+// ❌ Don't use
+wp_specialchars($text);
+
+// ✅ Use instead
+esc_html($text);
+```
+
+**WordPress 7.0 Deprecations (Prepare For):**
+```php
+// ❌ Will be deprecated
+get_page_by_title('About Us');
+
+// ✅ Use instead
+get_posts(array(
+    'title' => 'About Us',
+    'post_type' => 'page',
+    'numberposts' => 1
+));
+```
+
+---
+
+## Exercise 2: Classic Theme to Block Theme Conversion (60 min)
+
+**Task:** Convert a classic PHP template to a modern block theme using FSE patterns.
+
+**Context:** Block themes are mandatory in WordPress 7.0. Learn to convert traditional PHP templates to block-based patterns.
+
+### Requirements
+
+1. Take a classic theme template (header.php, footer.php, single.php)
+2. Convert to FSE block patterns
+3. Generate theme.json configuration
+4. Test the converted template in Block Editor
+5. Ensure all functionality preserved
+
+### Part 1: Convert Header Template (20 min)
+
+**Starting Point:** Classic header.php
+
+```php
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>
+<?php wp_body_open(); ?>
+<header class="site-header">
+    <div class="container">
+        <div class="site-branding">
+            <?php the_custom_logo(); ?>
+            <h1><?php bloginfo('name'); ?></h1>
+        </div>
+        <nav class="main-navigation">
+            <?php
+            wp_nav_menu(array(
+                'theme_location' => 'primary',
+                'menu_class'     => 'primary-menu',
+            ));
+            ?>
+        </nav>
+    </div>
+</header>
+```
+
+**Goal:** Convert to block pattern in `/patterns/header.php`
+
+### Part 2: Create theme.json (15 min)
+
+**Required Settings:**
+- Color palette (at least 5 colors)
+- Typography (font families and sizes)
+- Spacing scale
+- Layout settings
+
+### Part 3: Test in FSE (10 min)
+
+- Load template in Site Editor
+- Verify all blocks editable
+- Test responsive behavior
+- Ensure no functionality lost
+
+### Part 4: Convert Additional Templates (15 min)
+
+Choose one to convert:
+- Footer template
+- Single post template
+- Archive template
+
+### Success Criteria
+
+- ✅ Classic templates converted to block patterns
+- ✅ theme.json generated with correct settings
+- ✅ All original functionality works
+- ✅ Editable in Full Site Editor
+- ✅ No PHP template fallbacks needed
+
+### Skills Practiced
+
+- FSE architecture understanding
+- Block pattern creation
+- theme.json configuration
+- Template hierarchy in block themes
+
+### Example Prompt
+
+```
+I have this classic header.php template. Convert it to a block theme pattern:
+
+[paste header.php code]
+
+Requirements:
+- Maintain all functionality (logo, menu, search)
+- Use core WordPress blocks where possible
+- Make it editable in FSE
+- Generate the corresponding theme.json settings
+```
+
+### Block Pattern Example
+
+Here's what the converted header might look like:
+
+```php
+<!-- wp:group {"tagName":"header","className":"site-header"} -->
+<header class="wp-block-group site-header">
+    <!-- wp:group {"className":"container"} -->
+    <div class="wp-block-group container">
+        <!-- wp:group {"className":"site-branding"} -->
+        <div class="wp-block-group site-branding">
+            <!-- wp:site-logo /-->
+            <!-- wp:site-title /-->
+        </div>
+        <!-- /wp:group -->
+
+        <!-- wp:navigation {"overlayMenu":"mobile"} /-->
+    </div>
+    <!-- /wp:group -->
+</header>
+<!-- /wp:group -->
+```
+
+---
+
+## Exercise 3: theme.json Generation & Customization (30 min)
+
+**Task:** Generate a complete theme.json file from scratch and customize it for your brand.
+
+**Context:** theme.json is the central configuration for block themes, controlling styles, spacing, colors, and typography.
+
+### Requirements
+
+1. Generate base theme.json with Claude
+2. Add custom color palette (at least 5 colors)
+3. Configure typography settings (font families, sizes)
+4. Set spacing scale
+5. Configure layout settings
+6. Test in Block Editor
+
+### Brand Configuration
+
+Define your brand settings to give Claude:
+
+**Colors:**
+```json
+{
+  "primary": "#007bff",
+  "secondary": "#6c757d",
+  "success": "#28a745",
+  "danger": "#dc3545",
+  "light": "#f8f9fa",
+  "dark": "#343a40"
+}
+```
+
+**Typography:**
+```json
+{
+  "headings": "Poppins, sans-serif",
+  "body": "Inter, sans-serif",
+  "sizes": ["14px", "16px", "18px", "24px", "32px", "48px"]
+}
+```
+
+**Spacing:**
+- Scale: 0.5rem increments from 0 to 4rem
+
+### Success Criteria
+
+- ✅ Valid theme.json generated
+- ✅ Custom colors appear in color picker
+- ✅ Typography settings work in editor
+- ✅ Spacing scale functional
+- ✅ No console errors in Block Editor
+
+### Skills Practiced
+
+- theme.json schema understanding
+- Design system implementation
+- Block theme configuration
+- Brand consistency in WordPress
+
+### Example Prompt
+
+```
+Generate a complete theme.json for my WordPress theme with:
+
+Brand Colors:
+- Primary: #007bff
+- Secondary: #6c757d
+- Success: #28a745
+- Danger: #dc3545
+- Light: #f8f9fa
+- Dark: #343a40
+
+Typography:
+- Headings: "Poppins", sans-serif
+- Body: "Inter", sans-serif
+- Sizes: 14px, 16px, 18px, 24px, 32px, 48px
+
+Spacing: 0.5rem increments from 0 to 4rem
+```
+
+### theme.json Structure
+
+Here's what Claude will generate:
+
+```json
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 2,
+  "settings": {
+    "color": {
+      "palette": [
+        {
+          "name": "Primary",
+          "slug": "primary",
+          "color": "#007bff"
+        },
+        {
+          "name": "Secondary",
+          "slug": "secondary",
+          "color": "#6c757d"
+        }
+      ]
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "name": "Headings",
+          "slug": "headings",
+          "fontFamily": "Poppins, sans-serif"
+        },
+        {
+          "name": "Body",
+          "slug": "body",
+          "fontFamily": "Inter, sans-serif"
+        }
+      ],
+      "fontSizes": [
+        {
+          "name": "Small",
+          "slug": "small",
+          "size": "14px"
+        },
+        {
+          "name": "Medium",
+          "slug": "medium",
+          "size": "16px"
+        }
+      ]
+    },
+    "spacing": {
+      "units": ["px", "em", "rem", "vh", "vw"],
+      "spacingScale": {
+        "operator": "+",
+        "increment": 0.5,
+        "steps": 9,
+        "unit": "rem"
+      }
+    },
+    "layout": {
+      "contentSize": "800px",
+      "wideSize": "1200px"
+    }
+  }
+}
+```
+
+### Testing theme.json
+
+1. Save theme.json to theme root
+2. Open Site Editor
+3. Edit a template
+4. Check color picker shows your colors
+5. Check typography options available
+6. Test spacing controls
+
+---
+
+## Week 7 Wrap-Up
+
+### Reflection Questions
+
+1. **FSE Architecture**: How does FSE change your development workflow compared to classic themes?
+2. **theme.json Benefits**: What are the biggest benefits of theme.json?
+3. **Conversion Challenges**: What challenges did you face converting classic templates to block patterns?
+4. **WordPress 7.0 Readiness**: How will you prepare existing client sites for WordPress 7.0?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 7 skills (1-10):
+- Understanding FSE architecture: ___
+- Converting classic to block themes: ___
+- theme.json configuration: ___
+- WordPress 7.0 readiness: ___
+
+### What's Next?
+
+**Week 8 Preview:** MCP Integration & Modern APIs
+- Connect Claude Code to WordPress via MCP (Model Context Protocol)
+- Query WordPress REST API directly
+- Access database via MCP
+- Use InstaWP for instant test environments
+
+---
+
+## WordPress 7.0 Migration Checklist
+
+Use this checklist when preparing sites for WordPress 7.0:
+
+### Code Audit
+- [ ] Scan for deprecated functions
+- [ ] Replace `query_posts()` with `WP_Query`
+- [ ] Update `wp_specialchars()` to `esc_html()`
+- [ ] Remove `screen_icon()` calls
+- [ ] Update `get_page_by_title()` usage
+
+### Theme Conversion
+- [ ] Convert classic theme to block theme
+- [ ] Create theme.json file
+- [ ] Convert templates to block patterns
+- [ ] Test all templates in Site Editor
+- [ ] Verify responsive behavior
+
+### Testing
+- [ ] Test with WordPress 7.0 beta (if available)
+- [ ] Verify all functionality works
+- [ ] Check for console errors
+- [ ] Test on mobile devices
+- [ ] Performance test
+
+### Documentation
+- [ ] Document breaking changes
+- [ ] Update team documentation
+- [ ] Create rollback plan
+- [ ] Schedule training for team
+
+---
+
+## Block Theme Resources
+
+### Official Documentation
+- [Block Theme documentation](https://developer.wordpress.org/block-editor/how-to-guides/themes/)
+- [theme.json reference](https://developer.wordpress.org/block-editor/reference-guides/theme-json-reference/)
+- [Block patterns](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-patterns/)
+- [FSE patterns library](https://wordpress.org/patterns/)
+
+### Learning Resources
+- [Full Site Editing Guide](https://learn.wordpress.org/course/full-site-editing/)
+- [Block Theme Examples](https://github.com/WordPress/block-theme-examples)
+- [theme.json Schema](https://schemas.wp.org/trunk/theme.json)
+
+### Tools
+- [Create Block Theme Plugin](https://wordpress.org/plugins/create-block-theme/) - Helps convert classic to block themes
+- [Theme Check Plugin](https://wordpress.org/plugins/theme-check/) - Validates block theme structure
+
+---
+
+## Common FSE Mistakes to Avoid
+
+### ❌ DON'T
+
+1. **Don't mix classic and block templates**
+   - Decide on one approach and stick with it
+   - Use either PHP templates OR block templates, not both
+
+2. **Don't skip theme.json**
+   - It's required for block themes
+   - Controls all global styles
+
+3. **Don't hardcode styles in patterns**
+   - Use theme.json settings instead
+   - Makes styles editable in Site Editor
+
+4. **Don't forget responsive testing**
+   - FSE makes it easy to break mobile
+   - Test all templates on small screens
+
+### ✅ DO
+
+1. **Use core blocks when possible**
+   - Leverage existing WordPress blocks
+   - Only create custom blocks when truly needed
+
+2. **Organize patterns by purpose**
+   - Create reusable patterns
+   - Name them clearly (header, footer, hero, etc.)
+
+3. **Test in Site Editor frequently**
+   - Verify blocks are editable
+   - Check that changes persist
+
+4. **Document your block patterns**
+   - Add pattern descriptions
+   - Include usage examples
+
+---
+
+## Troubleshooting FSE Issues
+
+### Templates Not Showing in Site Editor
+
+**Problem:** Your block templates don't appear in the Site Editor.
+
+**Solutions:**
+```bash
+# Check template file naming
+# Must be in /templates/ directory
+# Must use .html extension
+# Example: /templates/index.html
+
+# Verify theme.json exists
+ls theme.json
+
+# Check theme.json is valid JSON
+cat theme.json | python -m json.tool
+```
+
+### Blocks Not Editable
+
+**Problem:** Block patterns show but can't be edited in Site Editor.
+
+**Solutions:**
+```php
+<!-- Ensure blocks use proper structure -->
+<!-- wp:group {"className":"my-class"} -->
+<div class="wp-block-group my-class">
+    <!-- Content here -->
+</div>
+<!-- /wp:group -->
+
+<!-- Not this: -->
+<div class="my-class">
+    <!-- This won't be editable -->
+</div>
+```
+
+### Styles Not Applying
+
+**Problem:** theme.json styles don't show up.
+
+**Solutions:**
+```json
+{
+  "version": 2,  // Must be version 2
+  "settings": {
+    "color": {
+      "palette": [
+        // Use exact structure
+        {
+          "name": "Primary",
+          "slug": "primary",  // No spaces, lowercase
+          "color": "#007bff"
+        }
+      ]
+    }
+  }
+}
+```
+
+---
+
+## Need Help?
+
+- Ask Claude to explain any FSE concepts you don't understand
+- Test all converted templates in Site Editor
+- Check the WordPress Support Forum for FSE questions
+- Reference official Block Editor Handbook
+- Document your conversion process for team reference
+
+**Remember:** FSE is now the standard. Mastering it with Claude's help will make you a 2026-ready WordPress developer!

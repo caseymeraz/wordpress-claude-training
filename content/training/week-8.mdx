@@ -1,0 +1,750 @@
+---
+title: "Week 8: MCP Integration & Modern APIs"
+description: "Connect Claude Code directly to WordPress via Model Context Protocol"
+week: 8
+order: 8
+---
+
+# Week 8: MCP Integration & Modern APIs
+
+This week unlocks a powerful workflow: connecting Claude Code directly to WordPress via MCP (Model Context Protocol). Query your REST API, access your database, and spin up test environments—all without leaving Claude.
+
+## Learning Objectives
+
+- Understand Model Context Protocol (MCP) fundamentals
+- Connect Claude to WordPress REST API
+- Query WordPress database directly via MCP
+- Use InstaWP for instant test environments
+- Build custom MCP servers for WordPress
+
+## Time Commitment
+
+- Exercise 1: 30 minutes (WordPress REST API MCP)
+- Exercise 2: 45 minutes (Database MCP Server)
+- Exercise 3: 30 minutes (InstaWP Integration)
+- Exercise 4: 30 minutes (Custom MCP Server)
+- **Total: ~2 hours 15 minutes**
+
+---
+
+## What is MCP?
+
+**Model Context Protocol (MCP)** is an open protocol that lets Claude connect to external systems like APIs, databases, and services. Instead of manually writing fetch calls or SQL queries, Claude can directly interact with your WordPress site.
+
+### Benefits of MCP
+
+- **Direct API Access**: Query WordPress REST API without manual fetch calls
+- **Database Queries**: Run SQL queries directly on WordPress database
+- **Real-Time Data**: Always get current data, not stale snapshots
+- **Test Environments**: Spin up InstaWP sites on demand
+- **Custom Tools**: Build specialized MCP servers for your workflow
+
+---
+
+## Exercise 1: Connect WordPress REST API via MCP (30 min)
+
+**Task:** Connect Claude Code to your WordPress site's REST API using MCP transport.
+
+**Context:** MCP allows Claude to directly query your WordPress REST API without manual fetch calls or API clients.
+
+### Requirements
+
+1. Add WordPress REST API as MCP server
+2. Test connection with simple queries
+3. Fetch posts, pages, and custom post types
+4. Query WordPress settings via API
+5. Document common API endpoints
+
+### Setup Steps
+
+**Step 1: Verify REST API is accessible**
+
+```bash
+# Test your WordPress REST API
+curl https://your-site.local/wp-json/wp/v2/posts
+
+# Should return JSON array of posts
+```
+
+**Step 2: Add WordPress MCP server**
+
+In your Claude Code session:
+
+```bash
+# Add WordPress site as MCP server
+claude mcp add --transport http wordpress https://your-site.local/wp-json
+```
+
+**Step 3: Test the connection**
+
+Ask Claude:
+
+```
+Can you fetch the 10 most recent posts from my WordPress site?
+```
+
+Claude will now query the REST API directly!
+
+### Success Criteria
+
+- ✅ MCP server added successfully
+- ✅ Claude can fetch posts via API
+- ✅ Custom post types accessible
+- ✅ API responses properly formatted
+- ✅ Common endpoints documented
+
+### Skills Practiced
+
+- MCP configuration
+- WordPress REST API understanding
+- API endpoint structure
+- JSON response parsing
+
+### Example Queries to Test
+
+Once MCP is configured, try these prompts:
+
+```
+"Show me the 10 most recent posts"
+"Fetch all published pages"
+"Get the 'team_member' custom post type entries"
+"What's the site title and description?"
+"Show me posts from the 'news' category"
+"Find posts by author ID 1"
+```
+
+### REST API Endpoints Reference
+
+**Common WordPress REST API endpoints:**
+
+```
+GET /wp/v2/posts              - List posts
+GET /wp/v2/posts/{id}         - Single post
+GET /wp/v2/pages              - List pages
+GET /wp/v2/categories         - List categories
+GET /wp/v2/tags               - List tags
+GET /wp/v2/users              - List users
+GET /wp/v2/media              - List media items
+GET /wp/v2/{custom_post_type} - Custom post types
+```
+
+### Troubleshooting
+
+**Connection fails:**
+```bash
+# Check REST API is enabled
+curl https://your-site.local/wp-json
+
+# Should return: {"name":"Site Name", ...}
+
+# Check for firewall/security plugin blocking
+# Disable firewall temporarily to test
+```
+
+**Authentication needed:**
+```bash
+# For protected endpoints, use application passwords
+# WordPress Admin → Users → Your Profile → Application Passwords
+# Generate a password, then add with auth:
+
+claude mcp add --transport http wordpress https://your-site.local/wp-json \
+  --auth "username:application-password"
+```
+
+---
+
+## Exercise 2: WordPress Database Access via MCP (45 min)
+
+**Task:** Set up direct MySQL database access for WordPress via MCP using dbhub.
+
+**Context:** Sometimes you need direct database access for complex queries or bulk operations. MCP makes this safe and convenient.
+
+### Requirements
+
+1. Install dbhub MCP server
+2. Connect to WordPress database
+3. Run read-only queries on wp_posts
+4. Query custom tables
+5. Create a database reporting workflow
+
+### Setup Steps
+
+**Step 1: Install dbhub**
+
+```bash
+# Install dbhub MCP server (requires Node.js)
+npm install -g @bytebase/dbhub
+```
+
+**Step 2: Get database credentials**
+
+From your wp-config.php:
+
+```php
+define('DB_NAME', 'wordpress_db');
+define('DB_USER', 'wp_user');
+define('DB_PASSWORD', 'your_password');
+define('DB_HOST', 'localhost');
+```
+
+**Step 3: Add database MCP server**
+
+```bash
+# Connect to WordPress database via MCP
+claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
+  --dsn "mysql://wp_user:your_password@localhost/wordpress_db"
+```
+
+**Step 4: Test with a query**
+
+Ask Claude:
+
+```
+Can you show me the 10 most commented posts from the wp_posts table?
+```
+
+### Success Criteria
+
+- ✅ Database MCP server connected
+- ✅ Can query wp_posts table
+- ✅ Custom tables accessible
+- ✅ Read-only queries work safely
+- ✅ Query results formatted well
+
+### Skills Practiced
+
+- Database MCP setup
+- SQL query optimization
+- WordPress database schema
+- Data analysis workflows
+
+### Example Queries to Test
+
+Once connected, try these prompts:
+
+```
+"Show me the 10 most commented posts"
+"Count total users in wp_users"
+"Find all posts with 'featured' in post_meta"
+"What custom tables exist in this database?"
+"Show me all published posts from 2025"
+"Find users who haven't logged in for 6 months"
+```
+
+### WordPress Database Schema Reference
+
+**Core WordPress tables:**
+
+```sql
+wp_posts          - Posts, pages, custom post types
+wp_postmeta       - Post metadata (custom fields)
+wp_users          - User accounts
+wp_usermeta       - User metadata
+wp_comments       - Comments
+wp_terms          - Categories, tags, custom taxonomies
+wp_term_taxonomy  - Taxonomy relationships
+wp_term_relationships - Post-term relationships
+wp_options        - Site settings
+```
+
+### Safe Query Practices
+
+**✅ READ-ONLY is Best Practice:**
+
+```sql
+-- Safe: SELECT queries
+SELECT post_title, post_date, comment_count
+FROM wp_posts
+WHERE post_status = 'publish'
+ORDER BY comment_count DESC
+LIMIT 10;
+
+-- Safe: JOIN queries
+SELECT p.post_title, pm.meta_value as featured
+FROM wp_posts p
+LEFT JOIN wp_postmeta pm ON p.ID = pm.post_id
+WHERE pm.meta_key = 'featured_post';
+```
+
+**❌ AVOID Write Operations:**
+
+```sql
+-- Dangerous: Don't UPDATE directly
+-- Use WordPress functions instead
+UPDATE wp_posts SET post_status = 'draft' WHERE ID = 123;
+
+-- Dangerous: Don't DELETE directly
+DELETE FROM wp_posts WHERE post_date < '2020-01-01';
+```
+
+**💡 Best Practice:** Use read-only database credentials for MCP:
+
+```bash
+# Create read-only MySQL user
+GRANT SELECT ON wordpress_db.* TO 'readonly_user'@'localhost'
+IDENTIFIED BY 'secure_password';
+
+# Use read-only user in MCP
+claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
+  --dsn "mysql://readonly_user:secure_password@localhost/wordpress_db"
+```
+
+### Safety Note
+
+**IMPORTANT:** Use read-only database credentials to prevent accidental data modification. For write operations, always use WordPress functions (wp_insert_post, wp_update_post, etc.) to maintain data integrity.
+
+---
+
+## Exercise 3: InstaWP Test Environment Integration (30 min)
+
+**Task:** Connect Claude to InstaWP for instant WordPress test environments.
+
+**Context:** InstaWP spins up temporary WordPress sites in seconds—perfect for testing before deploying to production.
+
+### Requirements
+
+1. Create InstaWP account (free tier available)
+2. Connect InstaWP to Claude via MCP
+3. Spin up a test WordPress site
+4. Test a feature on InstaWP before production
+5. Destroy test site after validation
+
+### Setup Steps
+
+**Step 1: Create InstaWP Account**
+
+- Visit: https://instawp.com
+- Sign up for free tier (includes test sites)
+- Get API key from dashboard
+
+**Step 2: Document InstaWP Workflow**
+
+Since InstaWP API access requires a paid plan, document the workflow for when your team has access:
+
+```bash
+# When available, connect InstaWP via MCP
+claude mcp add --transport http instawp https://api.instawp.io \
+  --auth "Bearer YOUR_API_KEY"
+```
+
+**Step 3: Manual Testing Workflow (Free Tier)**
+
+For now, use InstaWP manually:
+
+1. Go to instawp.com dashboard
+2. Click "Create New Site"
+3. Choose WordPress version
+4. Wait 30 seconds
+5. Access temporary site
+6. Test your changes
+7. Delete site when done
+
+### Success Criteria
+
+- ✅ InstaWP account created
+- ✅ Understand test environment workflow
+- ✅ Can create/destroy test sites
+- ✅ Test feature validation process documented
+- ✅ Cleanup process documented
+
+### Skills Practiced
+
+- Test environment workflows
+- Safe experimentation practices
+- InstaWP platform usage
+- Pre-deployment validation
+
+### Example Workflow
+
+**Scenario:** Testing a new payment gateway integration
+
+```
+1. "I need to test a WooCommerce payment gateway"
+   → Create InstaWP site with WooCommerce
+
+2. "Install and configure the gateway plugin"
+   → Install on InstaWP test site
+
+3. "Run test transactions"
+   → Verify gateway works correctly
+
+4. "Tests passed? Deploy to production"
+   → Apply changes to live site
+
+5. "Destroy the InstaWP test site"
+   → Clean up temporary environment
+```
+
+### Benefits of Test Environments
+
+- **Safe Testing**: Break things without affecting production
+- **Quick Validation**: Test in minutes, not hours
+- **Clean Slate**: Fresh WordPress install every time
+- **No Local Setup**: Works from any computer
+- **Team Sharing**: Share test site URLs with team
+
+### InstaWP Alternatives
+
+If InstaWP isn't available:
+
+- **Local by Flywheel**: Local WordPress environment
+- **MAMP/XAMPP**: Traditional local server
+- **Docker**: Containerized WordPress
+- **Staging Subdomain**: staging.yoursite.com
+
+---
+
+## Exercise 4: Build Custom MCP Server (30 min)
+
+**Task:** Create a custom MCP server that exposes WordPress-specific functionality to Claude.
+
+**Context:** Custom MCP servers let you create specialized tools for your WordPress workflow that go beyond what standard APIs provide.
+
+### Requirements
+
+1. Choose a use case (backup, migration, reporting, etc.)
+2. Write MCP server configuration
+3. Define available commands/tools
+4. Test the server with Claude
+5. Document usage for team
+
+### Use Case Examples
+
+**Option 1: Automated Backup System**
+- Create backup of WordPress files
+- Export database
+- Upload to S3/cloud storage
+- Verify backup integrity
+
+**Option 2: Content Migration Tool**
+- Export posts from one site
+- Transform content format
+- Import to another WordPress site
+- Preserve SEO metadata
+
+**Option 3: Bulk Post Operations**
+- Update multiple posts at once
+- Batch edit custom fields
+- Bulk category changes
+- Mass media uploads
+
+**Option 4: Custom Reporting Dashboard**
+- Aggregate data from multiple sources
+- Generate PDF reports
+- Email to stakeholders
+- Schedule automated reports
+
+### Implementation Steps
+
+**Step 1: Choose Your Use Case**
+
+For this exercise, let's build a **WordPress Health Check** MCP server.
+
+**Step 2: Define MCP Server Functions**
+
+Create `/claude-mcp-servers/wp-health-check.js`:
+
+```javascript
+#!/usr/bin/env node
+
+// WordPress Health Check MCP Server
+// Provides WordPress site health diagnostics
+
+const readline = require('readline');
+
+const tools = {
+  'check-wordpress-version': {
+    description: 'Check WordPress core version and compare to latest',
+    handler: async () => {
+      // Implementation: Query WordPress API and compare versions
+      return {
+        current: '6.7.1',
+        latest: '6.7.1',
+        status: 'up-to-date'
+      };
+    }
+  },
+
+  'check-plugin-updates': {
+    description: 'List plugins needing updates',
+    handler: async () => {
+      // Implementation: Query plugins API
+      return {
+        needsUpdate: [
+          { name: 'Contact Form 7', current: '5.8', latest: '5.9' },
+          { name: 'Yoast SEO', current: '22.0', latest: '22.3' }
+        ]
+      };
+    }
+  },
+
+  'check-security': {
+    description: 'Run basic security checks',
+    handler: async () => {
+      // Implementation: Check for common security issues
+      return {
+        issues: [
+          'Admin user with ID 1 exists',
+          'File editing enabled in wp-config.php'
+        ],
+        passed: [
+          'SSL certificate valid',
+          'WordPress debug mode disabled'
+        ]
+      };
+    }
+  }
+};
+
+// MCP Server Implementation
+async function main() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  console.log(JSON.stringify({
+    jsonrpc: '2.0',
+    method: 'tools/list',
+    result: Object.keys(tools).map(name => ({
+      name,
+      description: tools[name].description
+    }))
+  }));
+}
+
+main();
+```
+
+**Step 3: Register MCP Server**
+
+```bash
+# Make script executable
+chmod +x claude-mcp-servers/wp-health-check.js
+
+# Add to Claude MCP configuration
+claude mcp add --transport stdio wp-health \
+  -- /path/to/claude-mcp-servers/wp-health-check.js
+```
+
+**Step 4: Test Your MCP Server**
+
+Ask Claude:
+
+```
+"Run a WordPress health check on my site"
+"Check which plugins need updates"
+"Run security diagnostics"
+```
+
+### Success Criteria
+
+- ✅ Custom MCP server created
+- ✅ Commands work via Claude
+- ✅ Use case solves real problem
+- ✅ Error handling implemented
+- ✅ Documentation complete
+
+### Skills Practiced
+
+- MCP server development
+- Workflow automation
+- WordPress custom tooling
+- Team productivity optimization
+
+### Simplified Implementation
+
+Don't want to build from scratch? Create a bash script wrapper:
+
+```bash
+#!/bin/bash
+# wp-health-mcp.sh
+
+case "$1" in
+  "check-version")
+    wp core version --allow-root
+    ;;
+  "check-plugins")
+    wp plugin list --update=available --allow-root
+    ;;
+  "check-security")
+    wp eval "echo wp_check_php_version();" --allow-root
+    ;;
+  *)
+    echo "Unknown command: $1"
+    ;;
+esac
+```
+
+Then register it:
+
+```bash
+claude mcp add --transport stdio wp-health -- /path/to/wp-health-mcp.sh
+```
+
+---
+
+## Week 8 Wrap-Up
+
+### Reflection Questions
+
+1. **MCP Value**: How does MCP change your WordPress development workflow?
+2. **API vs Database**: When would you use REST API vs. direct database access?
+3. **Custom Servers**: What custom MCP servers would benefit your team most?
+4. **Testing**: How can InstaWP reduce production bugs?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 8 skills (1-10):
+- Understanding MCP fundamentals: ___
+- WordPress REST API via MCP: ___
+- Database queries via MCP: ___
+- Custom MCP server creation: ___
+
+### What's Next?
+
+**Core Training Complete! 🎉**
+
+Congratulations! You've completed the 8-week core curriculum. You now have production-ready Claude Code skills for WordPress development.
+
+**Ready for the Advanced Track?**
+
+Weeks 9-12 cover optional advanced topics:
+- Week 9: Headless WordPress (REST API, GraphQL, Next.js)
+- Week 10: Performance & Security Deep Dive
+- Week 11: Advanced Debugging & Browser Integration
+- Week 12: WordPress AI & Parallel Task Execution
+
+---
+
+## MCP Resources
+
+### Documentation
+- [MCP Official Docs](https://modelcontextprotocol.io/)
+- [MCP Specification](https://github.com/anthropics/mcp)
+- [Building MCP Servers](https://modelcontextprotocol.io/docs/building-servers)
+
+### WordPress Integration
+- [WordPress REST API Handbook](https://developer.wordpress.org/rest-api/)
+- [WP-CLI Commands](https://developer.wordpress.org/cli/commands/)
+- [WordPress Database Schema](https://codex.wordpress.org/Database_Description)
+
+### MCP Server Examples
+- [dbhub MCP Server](https://github.com/bytebase/dbhub)
+- [HTTP MCP Transport](https://github.com/anthropics/mcp-http-transport)
+- [Custom MCP Servers](https://github.com/anthropics/mcp-examples)
+
+---
+
+## MCP Best Practices
+
+### Security
+
+✅ **DO:**
+- Use read-only database credentials
+- Authenticate API requests
+- Validate all inputs
+- Log access for audit trails
+
+❌ **DON'T:**
+- Expose production database with write access
+- Store credentials in code
+- Skip authentication checks
+- Trust user input blindly
+
+### Performance
+
+✅ **DO:**
+- Cache API responses when possible
+- Use pagination for large datasets
+- Implement rate limiting
+- Optimize database queries
+
+❌ **DON'T:**
+- Fetch all data at once
+- Make excessive API calls
+- Run slow database queries
+- Skip query optimization
+
+### Maintenance
+
+✅ **DO:**
+- Document MCP server configurations
+- Version your MCP servers
+- Test after WordPress updates
+- Share configurations with team
+
+❌ **DON'T:**
+- Leave undocumented servers running
+- Forget to update access credentials
+- Skip testing after changes
+- Keep configuration knowledge siloed
+
+---
+
+## Troubleshooting MCP
+
+### MCP Server Won't Connect
+
+```bash
+# Check MCP server is registered
+claude mcp list
+
+# Test connection manually
+curl https://your-site.local/wp-json/wp/v2/posts
+
+# Check Claude Code logs
+claude logs
+
+# Re-add MCP server
+claude mcp remove wordpress
+claude mcp add --transport http wordpress https://your-site.local/wp-json
+```
+
+### Database Queries Fail
+
+```bash
+# Test database connection
+mysql -u wp_user -p wordpress_db -e "SELECT 1;"
+
+# Check dbhub is installed
+npm list -g @bytebase/dbhub
+
+# Verify DSN format
+# Correct: mysql://user:pass@host/database
+# Wrong: mysql://host/database
+
+# Re-add with correct credentials
+claude mcp remove db
+claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
+  --dsn "mysql://correct_user:correct_pass@localhost/wordpress_db"
+```
+
+### MCP Server Timeouts
+
+```bash
+# Increase timeout in MCP config
+# Edit ~/.claude/mcp-config.json
+{
+  "servers": {
+    "wordpress": {
+      "timeout": 30000  // 30 seconds
+    }
+  }
+}
+
+# Optimize slow queries
+# Add database indexes if needed
+```
+
+---
+
+## Need Help?
+
+- Review MCP official documentation
+- Test MCP connections manually first
+- Ask Claude to debug MCP configuration issues
+- Check Claude Code logs for error messages
+- Share MCP server code with team for review
+
+**Remember:** MCP unlocks powerful workflows, but start simple and add complexity as needed!

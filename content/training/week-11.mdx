@@ -1,0 +1,818 @@
+---
+title: "Week 11: Advanced Debugging & Browser Integration"
+description: "Master Plan Mode, checkpoints, browser automation, and complex debugging scenarios"
+week: 11
+order: 11
+---
+
+# Week 11: Advanced Debugging & Browser Integration
+
+**Advanced Track - Optional**
+
+This week teaches advanced Claude Code debugging techniques that go beyond basic code fixes. Learn to use Plan Mode for safe exploration, create checkpoints before risky changes, automate browser testing, and tackle complex multi-file bugs.
+
+## Learning Objectives
+
+- Use Plan Mode to analyze code without making changes
+- Create and restore checkpoints for safe experimentation
+- Debug WordPress admin UI with browser automation
+- Test frontend user flows programmatically
+- Handle complex bugs spanning multiple files and systems
+- Build systematic debugging workflows
+
+## Time Commitment
+
+- Exercise 1: 30 minutes (Plan Mode Workflows)
+- Exercise 2: 30 minutes (Checkpoint System)
+- Exercise 3: 45 minutes (Browser Integration for WordPress Admin)
+- Exercise 4: 30 minutes (Complex Multi-File Bug Hunt)
+- **Total: ~2 hours 15 minutes**
+
+## Prerequisites
+
+- Completion of Weeks 1-8 (Core Training)
+- Understanding of git and version control
+- Familiarity with browser DevTools
+- Experience debugging WordPress issues
+
+---
+
+## Exercise 1: Plan Mode for Safe Code Analysis (30 min)
+
+**Task:** Use Claude Code's Plan Mode to analyze a complex WordPress codebase without making any changes.
+
+**Context:** Plan Mode lets Claude explore code, understand architecture, and create implementation plans WITHOUT modifying files. This is perfect for understanding unfamiliar codebases, assessing risk, or planning major refactors.
+
+### Requirements
+
+1. Enter Plan Mode for a WordPress plugin or theme
+2. Map out the architecture and file structure
+3. Identify potential issues or technical debt
+4. Create a detailed implementation plan
+5. Exit Plan Mode and execute the plan
+
+### Part 1: Enter Plan Mode (5 min)
+
+**Start Claude in Plan Mode:**
+```bash
+cd /path/to/wordpress/wp-content/plugins/my-plugin
+claude --plan
+```
+
+Or within an existing Claude session:
+```
+Enter Plan Mode. I want to analyze this codebase before making changes.
+```
+
+**Verify Plan Mode Active:**
+- Claude should confirm: "Entering Plan Mode. I will analyze code without making changes."
+- File operations are read-only
+- No Write or Edit tools available
+- Can still use Read, Glob, Grep
+
+### Part 2: Analyze Codebase (15 min)
+
+**Prompt for Architecture Mapping:**
+```
+Analyze this WordPress plugin's architecture:
+1. Main file structure and entry points
+2. Key classes and their responsibilities
+3. Database tables and schema
+4. API endpoints and hooks
+5. Dependencies on other plugins
+6. Potential technical debt or issues
+
+Create a comprehensive architecture document.
+```
+
+**Example Analysis Output:**
+```markdown
+# Plugin Architecture Analysis
+
+## Entry Points
+- `my-plugin.php` - Main plugin file, registers hooks
+- `includes/class-activator.php` - Activation/deactivation logic
+- `admin/class-admin.php` - Admin interface
+
+## Key Classes
+- `MyPlugin_Core` - Central controller
+  - Registers all hooks
+  - Loads dependencies
+  - Handles plugin lifecycle
+
+- `MyPlugin_Database` - Database operations
+  - Custom table: `wp_myplugin_data`
+  - Schema version: 1.0.0
+  - Migration system present
+
+- `MyPlugin_API` - REST API endpoints
+  - `/wp-json/myplugin/v1/items`
+  - `/wp-json/myplugin/v1/settings`
+  - JWT authentication required
+
+## Potential Issues
+1. No nonce verification on settings save
+2. Direct $_POST access without sanitization
+3. N+1 query in admin list table
+4. Missing index on `status` column
+5. No unit tests
+
+## Dependencies
+- ACF Pro (required)
+- WooCommerce (optional)
+
+## Recommendations
+- Add security audit before next release
+- Implement proper input sanitization
+- Add database indexes
+- Create unit test suite
+```
+
+### Part 3: Create Implementation Plan (10 min)
+
+**Prompt for Planning:**
+```
+Based on this analysis, create a plan to:
+1. Fix the security vulnerabilities
+2. Optimize the N+1 query
+3. Add database indexes
+4. Maintain backwards compatibility
+
+Provide:
+- Step-by-step implementation plan
+- Files that need modification
+- Estimated time per task
+- Testing strategy
+```
+
+**Example Plan:**
+```markdown
+# Implementation Plan
+
+## Phase 1: Security Fixes (2 hours)
+1. Add nonce verification to settings form
+   - File: `admin/class-admin-settings.php`
+   - Add `wp_nonce_field()` to form
+   - Verify with `wp_verify_nonce()` on submit
+
+2. Sanitize all POST inputs
+   - File: `includes/class-form-handler.php`
+   - Use `sanitize_text_field()`, `sanitize_url()`, etc.
+   - Add input validation layer
+
+3. Escape all output
+   - Files: All admin templates
+   - Use `esc_html()`, `esc_attr()`, `esc_url()`
+
+## Phase 2: Performance (1 hour)
+4. Fix N+1 query in admin list
+   - File: `admin/class-list-table.php`
+   - Use `update_post_meta_cache()`
+
+5. Add database indexes
+   - File: `includes/class-database.php`
+   - Add index on `status` column
+   - Version bump to 1.1.0
+
+## Phase 3: Testing (1 hour)
+6. Manual testing checklist
+7. Regression testing
+
+**Total Estimated Time:** 4 hours
+```
+
+### Exit Plan Mode and Execute
+
+```bash
+# Exit Plan Mode
+exit
+
+# Or in conversation
+"Exit Plan Mode and let's implement the security fixes."
+```
+
+### Success Criteria
+
+- ✅ Plan Mode entered successfully
+- ✅ Complete architecture documented
+- ✅ All potential issues identified
+- ✅ Implementation plan created with time estimates
+- ✅ No files modified during analysis
+- ✅ Plan approved before execution
+
+### Skills Practiced
+
+- Safe code exploration
+- Architecture documentation
+- Risk assessment
+- Implementation planning
+- Time estimation
+
+---
+
+## Exercise 2: Checkpoint & Rollback System (30 min)
+
+**Task:** Use checkpoints to safely experiment with risky WordPress code changes, with ability to rollback if needed.
+
+**Context:** Checkpoints are like git branches but managed by Claude. They let you try risky changes, test them, and instantly rollback if things go wrong. Perfect for refactoring or experimental features.
+
+### Requirements
+
+1. Create checkpoint before risky changes
+2. Make experimental modifications
+3. Test the changes
+4. Decide: keep changes or rollback to checkpoint
+5. Document when to use checkpoints
+
+### Part 1: Create Checkpoint (5 min)
+
+**Before Making Risky Changes:**
+```
+Create a checkpoint before I refactor this authentication system.
+Label it: "before-auth-refactor"
+```
+
+**Claude Creates Checkpoint:**
+- Takes snapshot of current file state
+- Stores git commit hash or file contents
+- Labels checkpoint for easy reference
+
+**Verify Checkpoint:**
+```
+List all checkpoints
+```
+
+**Example Output:**
+```
+Active Checkpoints:
+1. "before-auth-refactor" - Created 5 mins ago
+   Files: 3 modified, 1 new
+2. "stable-v1.0" - Created 2 days ago
+   Files: 12 modified
+```
+
+### Part 2: Make Experimental Changes (10 min)
+
+**Risky Refactor Example:**
+```
+Refactor the authentication system to use JWT instead of sessions:
+1. Replace session-based auth with JWT tokens
+2. Update all login/logout flows
+3. Modify middleware to validate JWT
+4. Update tests
+
+This is experimental - we have a checkpoint to rollback if needed.
+```
+
+**Claude Makes Changes:**
+- Refactors authentication code
+- Updates related files
+- Modifies tests
+
+### Part 3: Test Changes (10 min)
+
+**Test the Refactor:**
+```bash
+# Test login flow
+curl -X POST https://your-site.local/wp-json/myapp/v1/auth/login \
+  -d '{"username":"admin","password":"password"}'
+
+# Test authenticated request
+curl -X GET https://your-site.local/wp-json/myapp/v1/user/profile \
+  -H "Authorization: Bearer <token>"
+
+# Test logout
+curl -X POST https://your-site.local/wp-json/myapp/v1/auth/logout \
+  -H "Authorization: Bearer <token>"
+```
+
+**Check for Issues:**
+- Does login return valid JWT token?
+- Do authenticated endpoints work?
+- Does logout invalidate the token?
+- Are there any console errors?
+
+### Part 4: Decide - Keep or Rollback (5 min)
+
+**If Changes Work:**
+```
+The JWT refactor works perfectly. Commit these changes and remove the checkpoint.
+```
+
+**If Changes Break Things:**
+```
+The JWT implementation is breaking logout. Rollback to checkpoint "before-auth-refactor".
+```
+
+**Claude Rolls Back:**
+- Restores all files to checkpoint state
+- Lists changes that were undone
+- Preserves checkpoint for future attempts
+
+**Try Again:**
+```
+Let's try the JWT refactor again, but this time keep the session-based logout as fallback.
+```
+
+### When to Use Checkpoints
+
+**✅ Use Checkpoints For:**
+- Major refactoring that touches many files
+- Experimental features you're unsure about
+- Database schema changes
+- Switching to new libraries/dependencies
+- Complex authentication/authorization changes
+- Anything you might want to undo
+
+**❌ Don't Need Checkpoints For:**
+- Simple bug fixes
+- Adding new features that don't change existing code
+- Code review fixes
+- Documentation updates
+- Minor styling changes
+
+### Checkpoint vs Git
+
+**Checkpoints:**
+- Managed by Claude within session
+- Quick to create and rollback
+- Doesn't create git history
+- Best for experimentation
+
+**Git Branches:**
+- Manual git workflow
+- Permanent history
+- Better for team collaboration
+- Best for feature development
+
+**Best Practice: Use Both**
+```bash
+# Create git branch first
+git checkout -b feature/jwt-auth
+
+# Then create checkpoint
+claude
+> "Create checkpoint before implementing JWT auth"
+```
+
+### Success Criteria
+
+- ✅ Checkpoint created before risky changes
+- ✅ Experimental changes implemented
+- ✅ Changes tested thoroughly
+- ✅ Rollback works if needed
+- ✅ Decision documented (keep or rollback)
+- ✅ Team guidelines created for checkpoint usage
+
+### Skills Practiced
+
+- Safe experimentation
+- Risk management
+- Systematic testing
+- Decision-making under uncertainty
+- Workflow documentation
+
+---
+
+## Exercise 3: Browser Integration for WordPress Admin Debugging (45 min)
+
+**Task:** Use Claude's browser integration to automate WordPress admin UI testing and debugging.
+
+**Context:** Claude can launch a browser, navigate WordPress admin, fill forms, click buttons, and inspect elements. This is perfect for debugging admin UI issues, testing JavaScript, or automating repetitive admin tasks.
+
+### Requirements
+
+1. Launch browser in Claude session
+2. Navigate to WordPress admin and login
+3. Debug a settings page issue
+4. Test form submissions
+5. Verify JavaScript functionality
+6. Take screenshots of issues
+
+### Part 1: Launch Browser (10 min)
+
+**Start Browser in Claude:**
+```
+Launch a browser and navigate to my WordPress admin:
+https://your-site.local/wp-admin
+
+Credentials:
+Username: admin
+Password: <password>
+```
+
+**Claude Opens Browser:**
+- Launches headless Chrome/Firefox
+- Navigates to login page
+- Fills in credentials
+- Submits login form
+- Confirms successful login
+
+**Verify Login:**
+```
+Take a screenshot of the WordPress dashboard to confirm login worked.
+```
+
+### Part 2: Navigate Admin UI (15 min)
+
+**Navigate to Settings Page:**
+```
+Navigate to Settings → My Plugin Settings page and describe what you see.
+```
+
+**Claude Describes Page:**
+```
+I see:
+- Page title: "My Plugin Settings"
+- 3 tabs: General, Advanced, API
+- Currently on "General" tab
+- Settings form with 5 fields
+- Save button at bottom
+- JavaScript error in console: "Uncaught TypeError: Cannot read property 'value' of null"
+```
+
+**Inspect Specific Element:**
+```
+Click on the "Advanced" tab and inspect the form fields.
+```
+
+**Claude Reports:**
+```
+Advanced tab contains:
+- Enable Debug Mode (checkbox)
+- Cache Duration (number input, default: 3600)
+- API Endpoint URL (text input)
+
+Issue found: The API Endpoint URL field has placeholder="Enter URL" but no validation.
+Entering invalid URL shows no error message.
+```
+
+### Part 3: Debug JavaScript Issues (10 min)
+
+**Check Console Errors:**
+```
+Open browser DevTools console and list all JavaScript errors on this page.
+```
+
+**Claude Reports Errors:**
+```
+JavaScript Errors:
+1. Uncaught TypeError: Cannot read property 'value' of null
+   File: admin-scripts.js:45
+   Cause: Element #api-key-field doesn't exist
+
+2. Uncaught ReferenceError: jQuery is not defined
+   File: custom-validation.js:12
+   Cause: jQuery not loaded before script
+
+3. Uncaught SyntaxError: Unexpected token '}'
+   File: settings-ajax.js:78
+   Cause: Missing closing bracket on line 77
+```
+
+**Fix the Errors:**
+```
+Fix these JavaScript errors:
+1. Add null check before accessing #api-key-field
+2. Ensure jQuery is enqueued as dependency
+3. Fix syntax error in settings-ajax.js
+```
+
+### Part 4: Test Form Submission (10 min)
+
+**Fill Out and Submit Form:**
+```
+Fill out the settings form with these values:
+- Enable Debug Mode: checked
+- Cache Duration: 7200
+- API Endpoint: https://api.example.com/v1
+
+Then click Save Settings and verify the data was saved.
+```
+
+**Claude Tests Form:**
+```
+Form submission test:
+1. Filled all fields with test data
+2. Clicked "Save Settings"
+3. Observed AJAX request: POST /wp-admin/admin-ajax.php
+4. Response: {"success":true,"message":"Settings saved"}
+5. Page refreshed automatically
+6. Verified fields retained values ✓
+
+Test PASSED: Form saves correctly.
+```
+
+**Test Error Handling:**
+```
+Now test error handling:
+1. Clear the API Endpoint field (leave empty)
+2. Try to save
+3. Verify error message is shown
+```
+
+**Claude Tests Errors:**
+```
+Error handling test:
+1. Cleared API Endpoint field
+2. Clicked Save Settings
+3. Expected: Error message "API Endpoint is required"
+4. Actual: Form submitted successfully (no validation!)
+
+Test FAILED: Missing client-side validation.
+
+Fix needed: Add validation before form submission.
+```
+
+### Success Criteria
+
+- ✅ Browser launched in Claude session
+- ✅ WordPress admin accessed successfully
+- ✅ Settings page navigation working
+- ✅ JavaScript errors identified
+- ✅ Form submission tested
+- ✅ Error handling verified
+- ✅ Screenshots captured for documentation
+
+### Skills Practiced
+
+- Browser automation
+- WordPress admin UI testing
+- JavaScript debugging
+- Form validation testing
+- Error handling verification
+- Visual regression testing
+
+---
+
+## Exercise 4: Complex Multi-File Bug Hunt (30 min)
+
+**Task:** Debug a complex bug that spans multiple WordPress files, database queries, and third-party integrations.
+
+**Context:** Production bugs are rarely isolated to one file. This exercise practices systematic debugging across the entire WordPress stack.
+
+### Requirements
+
+1. Analyze bug report
+2. Trace code execution across multiple files
+3. Identify root cause in complex system
+4. Implement comprehensive fix
+5. Add regression tests
+6. Document the debugging process
+
+### Part 1: Bug Report Analysis (5 min)
+
+**Bug Report:**
+```
+Title: Checkout failing intermittently for logged-in users
+
+Description:
+About 30% of logged-in users report checkout failures with error:
+"Unable to process payment. Please try again."
+
+This started after we updated WooCommerce and our custom payment gateway plugin.
+
+Steps to reproduce:
+1. Log in as customer
+2. Add product to cart
+3. Go to checkout
+4. Fill in payment details
+5. Click "Place Order"
+6. Sometimes succeeds, sometimes fails
+
+Expected: Order should process successfully
+Actual: Intermittent "Unable to process payment" error
+
+Environment:
+- WordPress 6.7.1
+- WooCommerce 9.5.1
+- Custom payment gateway v2.1.0
+- PHP 8.2
+```
+
+**Ask Claude to Investigate:**
+```
+Debug this checkout bug. It's intermittent (30% failure rate) and started after a plugin update.
+
+Check:
+1. Payment gateway logs
+2. WooCommerce logs
+3. PHP error logs
+4. Database query logs
+5. Third-party API responses
+
+Trace the entire checkout flow from button click to payment processing.
+```
+
+### Part 2: Systematic Investigation (15 min)
+
+**Claude Investigates:**
+```
+Debugging checkout failure:
+
+Step 1: Check WooCommerce logs
+- File: wp-content/uploads/wc-logs/
+- Found: "Payment Gateway API timeout after 5 seconds"
+- Frequency: Matches 30% failure rate
+
+Step 2: Check payment gateway plugin
+- File: wp-content/plugins/custom-gateway/includes/class-api-client.php
+- Found: API timeout set to 5 seconds (line 45)
+- Issue: Timeout is too short for some API calls
+
+Step 3: Trace API call flow
+1. Checkout button clicked
+2. WooCommerce calls payment gateway
+3. Gateway calls third-party API
+4. API response time varies: 2-8 seconds
+5. If > 5 seconds, timeout occurs
+
+Step 4: Check API response times
+- Fast responses (70%): 2-4 seconds → Success
+- Slow responses (30%): 6-8 seconds → Timeout
+
+ROOT CAUSE: API timeout set too low (5 seconds).
+Some API calls take 6-8 seconds, causing intermittent failures.
+```
+
+### Part 3: Implement Fix (5 min)
+
+**Fix the Timeout:**
+```php
+// File: wp-content/plugins/custom-gateway/includes/class-api-client.php
+
+// ❌ BEFORE (line 45)
+private $timeout = 5;  // 5 seconds
+
+// ✅ AFTER
+private $timeout = 15;  // 15 seconds - allows for slower API responses
+
+// Also add retry logic
+public function process_payment($order_id) {
+    $retries = 0;
+    $max_retries = 2;
+
+    while ($retries <= $max_retries) {
+        try {
+            $response = $this->call_api($order_id);
+
+            if ($response->success) {
+                return $response;
+            }
+
+        } catch (TimeoutException $e) {
+            $retries++;
+
+            if ($retries > $max_retries) {
+                throw $e;  // Final attempt failed
+            }
+
+            // Wait 2 seconds before retry
+            sleep(2);
+        }
+    }
+}
+```
+
+### Part 4: Test Fix (5 min)
+
+**Test Checkout Flow:**
+```bash
+# Test with fast API (should succeed)
+curl -X POST https://your-site.local/wp-admin/admin-ajax.php \
+  -d "action=process_checkout&product_id=123"
+
+# Simulate slow API (should succeed with new timeout)
+# Use Charles Proxy or similar to throttle API response to 8 seconds
+
+# Verify no timeout errors in logs
+tail -f wp-content/uploads/wc-logs/custom-gateway.log
+```
+
+**Add Regression Test:**
+```php
+// File: tests/test-payment-gateway.php
+
+public function test_checkout_handles_slow_api_response() {
+    // Mock slow API response (8 seconds)
+    add_filter('pre_http_request', function($response, $args, $url) {
+        if (strpos($url, 'api.payment-provider.com') !== false) {
+            sleep(8);  // Simulate slow API
+            return array(
+                'response' => array('code' => 200),
+                'body'     => json_encode(array('success' => true)),
+            );
+        }
+        return $response;
+    }, 10, 3);
+
+    // Process test order
+    $order = $this->create_test_order();
+    $result = $this->gateway->process_payment($order->get_id());
+
+    // Should succeed despite 8-second delay
+    $this->assertTrue($result->success);
+}
+```
+
+### Success Criteria
+
+- ✅ Root cause identified through systematic investigation
+- ✅ All affected files found
+- ✅ Comprehensive fix implemented (timeout + retry)
+- ✅ Fix tested under slow conditions
+- ✅ Regression test added
+- ✅ Debugging process documented for team
+
+### Skills Practiced
+
+- Complex bug investigation
+- Multi-file code tracing
+- Log analysis
+- Root cause identification
+- Comprehensive fix design
+- Test-driven debugging
+
+---
+
+## Week 11 Wrap-Up
+
+### Reflection Questions
+
+1. **Plan Mode**: When would you use Plan Mode instead of jumping directly into code changes?
+2. **Checkpoints**: What types of changes are risky enough to warrant checkpoints?
+3. **Browser Automation**: How can browser integration speed up WordPress admin testing?
+4. **Complex Debugging**: What was the key to finding the root cause in the checkout bug?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 11 skills (1-10):
+- Using Plan Mode for analysis: ___
+- Creating and using checkpoints: ___
+- Browser automation for testing: ___
+- Complex multi-file debugging: ___
+
+### Advanced Debugging Workflow
+
+**1. Before Starting:**
+- [ ] Understand the bug report completely
+- [ ] Reproduce the issue reliably
+- [ ] Create checkpoint if changes are risky
+
+**2. Investigation Phase:**
+- [ ] Use Plan Mode to map code flow
+- [ ] Check logs (error, access, database)
+- [ ] Trace code across files
+- [ ] Identify root cause
+
+**3. Fix Phase:**
+- [ ] Implement fix
+- [ ] Add error handling
+- [ ] Test thoroughly
+- [ ] Add regression tests
+
+**4. Documentation:**
+- [ ] Document root cause
+- [ ] Document fix
+- [ ] Update team knowledge base
+- [ ] Remove checkpoint if keeping changes
+
+### What's Next?
+
+**Week 12 Preview:** WordPress AI & Subagents
+- Integrate WordPress AI Client for content automation
+- Launch multiple subagents for parallel task execution
+- Build AI-powered WordPress features
+- Coordinate multi-agent workflows
+
+---
+
+## Debugging Resources
+
+### Claude Code Features
+- Plan Mode - Safe code exploration
+- Checkpoints - Experimental changes with rollback
+- Browser Integration - Automated UI testing
+- Task Tool - Parallel debugging with subagents
+
+### WordPress Debugging
+- [Debugging in WordPress](https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/)
+- [WP_DEBUG Configuration](https://developer.wordpress.org/apis/wp-config-php/#wp_debug)
+- [Error Logging](https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/#wp_debug_log)
+
+### Browser Debugging
+- [Chrome DevTools](https://developer.chrome.com/docs/devtools/)
+- [Firefox Developer Tools](https://firefox-source-docs.mozilla.org/devtools-user/)
+- [Playwright Documentation](https://playwright.dev/) - Browser automation
+
+---
+
+## Need Help?
+
+- Use Plan Mode when you're unsure about code structure
+- Create checkpoints before any risky refactors
+- Use browser integration to debug admin UI issues
+- Ask Claude to trace complex bugs systematically
+- Document your debugging process for the team
+
+**Remember:** Advanced debugging is about systematic investigation, not guessing. Use the right tool for each phase of debugging!

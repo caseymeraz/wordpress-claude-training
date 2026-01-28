@@ -1,0 +1,949 @@
+---
+title: "Week 9: Headless WordPress & Modern APIs"
+description: "Build modern headless WordPress architectures with REST API, GraphQL, and Next.js frontends"
+week: 9
+order: 9
+---
+
+# Week 9: Headless WordPress & Modern APIs
+
+**Advanced Track - Optional**
+
+Welcome to the Advanced Track! This week focuses on headless WordPress architecture, where WordPress serves as a content API while your frontend is built with modern JavaScript frameworks. Learn to decouple content management from presentation.
+
+## Learning Objectives
+
+- Understand headless WordPress architecture patterns
+- Build secure custom REST API endpoints
+- Implement JWT authentication for APIs
+- Set up WPGraphQL and design efficient schemas
+- Integrate WordPress with Next.js frontend
+- Handle authentication and authorization in headless setups
+
+## Time Commitment
+
+- Exercise 1: 45 minutes (Custom REST API Endpoints + JWT)
+- Exercise 2: 45 minutes (WPGraphQL Setup & Schema Design)
+- Exercise 3: 45 minutes (Next.js Frontend Integration)
+- **Total: ~2 hours 15 minutes**
+
+## Prerequisites
+
+- Completion of Weeks 1-8 (Core Training)
+- Understanding of REST API concepts
+- Basic JavaScript/React knowledge
+- Node.js and npm installed
+
+---
+
+## Exercise 1: Custom REST API Endpoints with JWT Authentication (45 min)
+
+**Task:** Create secure custom REST API endpoints for a headless WordPress application with JWT token-based authentication.
+
+**Context:** When building headless WordPress, you'll need custom API endpoints that go beyond what the default REST API provides. JWT (JSON Web Tokens) provide secure, stateless authentication perfect for decoupled frontends.
+
+### Requirements
+
+1. Install JWT Authentication plugin
+2. Configure JWT secret key
+3. Create custom REST API endpoint
+4. Implement JWT token validation
+5. Add proper error handling and security
+6. Test with curl or Postman
+
+### Part 1: JWT Authentication Setup (15 min)
+
+**Install JWT Plugin:**
+```bash
+# Via WP-CLI
+wp plugin install jwt-authentication-for-wp-rest-api --activate
+
+# Or manually from:
+# https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/
+```
+
+**Configure wp-config.php:**
+```php
+// Add JWT secret key
+define('JWT_AUTH_SECRET_KEY', 'your-top-secret-key-here');
+
+// Enable JWT CORS support
+define('JWT_AUTH_CORS_ENABLE', true);
+```
+
+**Test Authentication Endpoint:**
+```bash
+curl -X POST https://your-site.com/wp-json/jwt-auth/v1/token \
+  -d "username=admin&password=your-password"
+```
+
+**Expected Response:**
+```json
+{
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "user_email": "admin@example.com",
+  "user_nicename": "admin",
+  "user_display_name": "Admin"
+}
+```
+
+### Part 2: Create Custom REST API Endpoint (20 min)
+
+Ask Claude to create a custom endpoint:
+
+**Prompt:**
+```
+Create a custom WordPress REST API endpoint at /wp-json/myapp/v1/posts that:
+1. Returns posts with custom fields
+2. Requires JWT authentication
+3. Accepts query parameters (posts_per_page, category)
+4. Returns proper error responses
+5. Includes custom meta data in response
+```
+
+**Example Implementation:**
+```php
+<?php
+// File: wp-content/plugins/my-api/includes/class-api-posts.php
+
+class MyApp_API_Posts {
+
+    public function register_routes() {
+        register_rest_route('myapp/v1', '/posts', array(
+            'methods'             => 'GET',
+            'callback'            => array($this, 'get_posts'),
+            'permission_callback' => array($this, 'verify_jwt'),
+            'args'                => array(
+                'posts_per_page' => array(
+                    'default'           => 10,
+                    'sanitize_callback' => 'absint',
+                ),
+                'category' => array(
+                    'default'           => '',
+                    'sanitize_callback' => 'sanitize_text_field',
+                ),
+            ),
+        ));
+    }
+
+    public function verify_jwt($request) {
+        // JWT plugin handles token validation
+        $user_id = get_current_user_id();
+
+        if (!$user_id) {
+            return new WP_Error(
+                'rest_forbidden',
+                __('You must be authenticated to access this endpoint.'),
+                array('status' => 401)
+            );
+        }
+
+        return true;
+    }
+
+    public function get_posts($request) {
+        $args = array(
+            'posts_per_page' => $request['posts_per_page'],
+            'post_status'    => 'publish',
+        );
+
+        if (!empty($request['category'])) {
+            $args['category_name'] = $request['category'];
+        }
+
+        $query = new WP_Query($args);
+        $posts = array();
+
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+
+                $posts[] = array(
+                    'id'            => get_the_ID(),
+                    'title'         => get_the_title(),
+                    'excerpt'       => get_the_excerpt(),
+                    'content'       => get_the_content(),
+                    'date'          => get_the_date('c'),
+                    'author'        => get_the_author(),
+                    'featured_image' => get_the_post_thumbnail_url(get_the_ID(), 'large'),
+                    'categories'    => wp_get_post_categories(get_the_ID(), array('fields' => 'names')),
+                    'custom_fields' => array(
+                        'subtitle'    => get_post_meta(get_the_ID(), 'subtitle', true),
+                        'read_time'   => get_post_meta(get_the_ID(), 'read_time', true),
+                    ),
+                );
+            }
+        }
+
+        wp_reset_postdata();
+
+        return rest_ensure_response(array(
+            'posts' => $posts,
+            'total' => $query->found_posts,
+            'pages' => $query->max_num_pages,
+        ));
+    }
+}
+
+// Initialize
+add_action('rest_api_init', function() {
+    $api = new MyApp_API_Posts();
+    $api->register_routes();
+});
+```
+
+### Part 3: Test with JWT Token (10 min)
+
+**Get Token:**
+```bash
+TOKEN=$(curl -s -X POST https://your-site.com/wp-json/jwt-auth/v1/token \
+  -d "username=admin&password=your-password" | jq -r '.token')
+```
+
+**Test Custom Endpoint:**
+```bash
+curl -X GET "https://your-site.com/wp-json/myapp/v1/posts?posts_per_page=5" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Test Error Handling (No Token):**
+```bash
+curl -X GET "https://your-site.com/wp-json/myapp/v1/posts"
+# Should return 401 Unauthorized
+```
+
+### Success Criteria
+
+- ✅ JWT authentication plugin installed and configured
+- ✅ Custom REST API endpoint created
+- ✅ JWT token validation working
+- ✅ Authenticated requests return data
+- ✅ Unauthenticated requests blocked (401 error)
+- ✅ Proper error responses with HTTP status codes
+- ✅ Custom fields included in API response
+
+### Skills Practiced
+
+- REST API development in WordPress
+- JWT authentication implementation
+- Security best practices for APIs
+- Custom endpoint registration
+- Error handling and HTTP status codes
+- Token-based authentication flows
+
+---
+
+## Exercise 2: WPGraphQL Setup & Schema Design (45 min)
+
+**Task:** Install WPGraphQL, expose custom post types, and design efficient GraphQL schemas for headless applications.
+
+**Context:** GraphQL is an alternative to REST that allows clients to request exactly the data they need. WPGraphQL provides a powerful GraphQL API for WordPress with automatic schema generation.
+
+### Requirements
+
+1. Install and configure WPGraphQL
+2. Expose custom post types to GraphQL
+3. Create custom field groups for GraphQL
+4. Write efficient GraphQL queries
+5. Avoid N+1 query problems
+6. Test in GraphiQL IDE
+
+### Part 1: WPGraphQL Installation (10 min)
+
+**Install WPGraphQL:**
+```bash
+# Via WP-CLI
+wp plugin install wp-graphql --activate
+
+# Or download from:
+# https://wordpress.org/plugins/wp-graphql/
+```
+
+**Verify Installation:**
+Visit: `https://your-site.com/graphql` - Should see GraphiQL IDE
+
+**Test Basic Query:**
+```graphql
+query {
+  posts {
+    nodes {
+      id
+      title
+      excerpt
+    }
+  }
+}
+```
+
+### Part 2: Expose Custom Post Types (15 min)
+
+**Register CPT with GraphQL Support:**
+```php
+<?php
+// File: wp-content/plugins/my-cpts/team-members.php
+
+function register_team_member_cpt() {
+    register_post_type('team_member', array(
+        'labels' => array(
+            'name' => __('Team Members'),
+            'singular_name' => __('Team Member'),
+        ),
+        'public'       => true,
+        'show_in_rest' => true,
+
+        // WPGraphQL settings
+        'show_in_graphql'     => true,
+        'graphql_single_name' => 'teamMember',
+        'graphql_plural_name' => 'teamMembers',
+
+        'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
+    ));
+}
+add_action('init', 'register_team_member_cpt');
+```
+
+**Test Query:**
+```graphql
+query {
+  teamMembers {
+    nodes {
+      id
+      title
+      content
+      featuredImage {
+        node {
+          sourceUrl
+        }
+      }
+    }
+  }
+}
+```
+
+### Part 3: ACF Fields in GraphQL (10 min)
+
+**Install WPGraphQL for ACF:**
+```bash
+wp plugin install wpgraphql-acf --activate
+```
+
+**Create ACF Field Group:**
+Ask Claude:
+```
+Create an ACF field group for team members with:
+- Job Title (text)
+- Bio (textarea)
+- LinkedIn URL (url)
+- Years Experience (number)
+- Skills (repeater with skill name)
+
+Make sure it's exposed to GraphQL.
+```
+
+**Query ACF Fields:**
+```graphql
+query {
+  teamMembers {
+    nodes {
+      id
+      title
+      teamMemberDetails {
+        jobTitle
+        bio
+        linkedinUrl
+        yearsExperience
+        skills {
+          skillName
+        }
+      }
+    }
+  }
+}
+```
+
+### Part 4: Efficient Query Patterns (10 min)
+
+**Bad Query (N+1 Problem):**
+```graphql
+query {
+  posts {
+    nodes {
+      id
+      title
+      # Each post triggers separate query for author
+      author {
+        node {
+          name
+        }
+      }
+      # Each post triggers separate query for categories
+      categories {
+        nodes {
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+**Optimized Query:**
+```graphql
+query GetPostsOptimized($first: Int = 10) {
+  posts(first: $first) {
+    nodes {
+      id
+      title
+      excerpt
+      date
+      author {
+        node {
+          id
+          name
+          avatar {
+            url
+          }
+        }
+      }
+      categories {
+        nodes {
+          id
+          name
+          slug
+        }
+      }
+      featuredImage {
+        node {
+          id
+          sourceUrl(size: LARGE)
+          altText
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+```
+
+**Pagination Query:**
+```graphql
+query GetMorePosts($after: String, $first: Int = 10) {
+  posts(first: $first, after: $after) {
+    nodes {
+      id
+      title
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+```
+
+### Success Criteria
+
+- ✅ WPGraphQL installed and accessible
+- ✅ Custom post types exposed to GraphQL
+- ✅ ACF fields queryable via GraphQL
+- ✅ Efficient queries written (no N+1 problems)
+- ✅ Pagination implemented correctly
+- ✅ Schema documentation reviewed
+- ✅ Queries tested in GraphiQL IDE
+
+### Skills Practiced
+
+- GraphQL fundamentals
+- WPGraphQL configuration
+- Schema design for custom post types
+- Query optimization
+- Pagination patterns
+- ACF integration with GraphQL
+
+---
+
+## Exercise 3: Next.js Frontend Integration (45 min)
+
+**Task:** Build a Next.js frontend that consumes your WordPress GraphQL API with ISR (Incremental Static Regeneration).
+
+**Context:** Next.js is the most popular framework for headless WordPress. ISR allows you to have static pages that automatically regenerate when content changes.
+
+### Requirements
+
+1. Create Next.js 15 app with App Router
+2. Install Apollo Client for GraphQL
+3. Fetch data from WordPress GraphQL API
+4. Implement ISR with revalidation
+5. Add client-side navigation
+6. Deploy to Vercel
+
+### Part 1: Next.js Setup (10 min)
+
+**Create Next.js App:**
+```bash
+npx create-next-app@latest my-headless-wp --typescript --tailwind --app
+cd my-headless-wp
+```
+
+**Install Apollo Client:**
+```bash
+npm install @apollo/client graphql
+```
+
+**Create Apollo Client:**
+```typescript
+// lib/apollo-client.ts
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+
+const client = new ApolloClient({
+  link: new HttpLink({
+    uri: 'https://your-wordpress-site.com/graphql',
+  }),
+  cache: new InMemoryCache(),
+});
+
+export default client;
+```
+
+### Part 2: Fetch WordPress Data (15 min)
+
+**Create GraphQL Query:**
+```typescript
+// lib/queries.ts
+import { gql } from '@apollo/client';
+
+export const GET_POSTS = gql`
+  query GetPosts($first: Int = 10) {
+    posts(first: $first, where: { status: PUBLISH }) {
+      nodes {
+        id
+        title
+        excerpt
+        slug
+        date
+        author {
+          node {
+            name
+          }
+        }
+        featuredImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_POST_BY_SLUG = gql`
+  query GetPostBySlug($slug: String!) {
+    postBy(slug: $slug) {
+      id
+      title
+      content
+      date
+      author {
+        node {
+          name
+          avatar {
+            url
+          }
+        }
+      }
+      featuredImage {
+        node {
+          sourceUrl
+          altText
+        }
+      }
+    }
+  }
+`;
+```
+
+**Create Blog Page with ISR:**
+```typescript
+// app/blog/page.tsx
+import client from '@/lib/apollo-client';
+import { GET_POSTS } from '@/lib/queries';
+import Link from 'next/link';
+import Image from 'next/image';
+
+export const revalidate = 3600; // ISR: Revalidate every hour
+
+export default async function BlogPage() {
+  const { data } = await client.query({
+    query: GET_POSTS,
+    variables: { first: 10 },
+  });
+
+  const posts = data.posts.nodes;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">Blog</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post: any) => (
+          <article key={post.id} className="border rounded-lg overflow-hidden">
+            {post.featuredImage && (
+              <Image
+                src={post.featuredImage.node.sourceUrl}
+                alt={post.featuredImage.node.altText || post.title}
+                width={400}
+                height={250}
+                className="w-full h-48 object-cover"
+              />
+            )}
+
+            <div className="p-4">
+              <h2 className="text-xl font-bold mb-2">
+                <Link href={`/blog/${post.slug}`} className="hover:text-blue-600">
+                  {post.title}
+                </Link>
+              </h2>
+
+              <div
+                className="text-gray-600 mb-3"
+                dangerouslySetInnerHTML={{ __html: post.excerpt }}
+              />
+
+              <div className="text-sm text-gray-500">
+                By {post.author.node.name} • {new Date(post.date).toLocaleDateString()}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+### Part 3: Dynamic Post Pages (15 min)
+
+**Create Dynamic Route:**
+```typescript
+// app/blog/[slug]/page.tsx
+import client from '@/lib/apollo-client';
+import { GET_POST_BY_SLUG, GET_POSTS } from '@/lib/queries';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
+
+export const revalidate = 3600; // ISR revalidation
+
+// Generate static params for ISR
+export async function generateStaticParams() {
+  const { data } = await client.query({
+    query: GET_POSTS,
+    variables: { first: 100 }, // Generate first 100 posts
+  });
+
+  return data.posts.nodes.map((post: any) => ({
+    slug: post.slug,
+  }));
+}
+
+export default async function PostPage({ params }: { params: { slug: string } }) {
+  const { data } = await client.query({
+    query: GET_POST_BY_SLUG,
+    variables: { slug: params.slug },
+  });
+
+  const post = data.postBy;
+
+  if (!post) {
+    notFound();
+  }
+
+  return (
+    <article className="container mx-auto px-4 py-8 max-w-3xl">
+      {post.featuredImage && (
+        <Image
+          src={post.featuredImage.node.sourceUrl}
+          alt={post.featuredImage.node.altText || post.title}
+          width={800}
+          height={500}
+          className="w-full rounded-lg mb-8"
+          priority
+        />
+      )}
+
+      <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+
+      <div className="flex items-center gap-4 mb-8 text-gray-600">
+        {post.author.node.avatar && (
+          <Image
+            src={post.author.node.avatar.url}
+            alt={post.author.node.name}
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
+        )}
+        <div>
+          <div className="font-semibold">{post.author.node.name}</div>
+          <div className="text-sm">{new Date(post.date).toLocaleDateString()}</div>
+        </div>
+      </div>
+
+      <div
+        className="prose prose-lg max-w-none"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
+    </article>
+  );
+}
+```
+
+### Part 4: Deploy to Vercel (5 min)
+
+**Add Environment Variable:**
+```bash
+# .env.local
+NEXT_PUBLIC_WORDPRESS_URL=https://your-wordpress-site.com
+```
+
+**Deploy:**
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+
+# Add environment variable in Vercel dashboard
+# Then deploy to production
+vercel --prod
+```
+
+### Success Criteria
+
+- ✅ Next.js app created with App Router
+- ✅ Apollo Client configured for WordPress GraphQL
+- ✅ Blog listing page fetches and displays posts
+- ✅ Individual post pages work dynamically
+- ✅ ISR implemented with 1-hour revalidation
+- ✅ Images optimized with Next.js Image component
+- ✅ Fast page loads (<1s LCP)
+- ✅ SEO metadata correct
+- ✅ Deployed to Vercel production
+
+### Skills Practiced
+
+- Next.js 15 App Router
+- Apollo Client for GraphQL
+- ISR (Incremental Static Regeneration)
+- Dynamic routes with `generateStaticParams`
+- Image optimization
+- Deployment to Vercel
+- Environment variable management
+
+---
+
+## Week 9 Wrap-Up
+
+### Reflection Questions
+
+1. **Headless Architecture**: What are the main benefits of headless WordPress vs traditional themes?
+2. **REST vs GraphQL**: When would you choose GraphQL over REST API?
+3. **Performance**: How does ISR improve performance compared to pure client-side fetching?
+4. **Security**: What security considerations are unique to headless WordPress?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 9 skills (1-10):
+- Custom REST API endpoints: ___
+- JWT authentication: ___
+- WPGraphQL schema design: ___
+- Next.js integration with WordPress: ___
+
+### Real-World Applications
+
+**When to Use Headless WordPress:**
+- ✅ Marketing sites with complex frontend animations
+- ✅ Multi-platform content (web, mobile apps, digital signage)
+- ✅ High-traffic sites needing static generation
+- ✅ Teams with separate frontend/backend developers
+- ✅ Modern JavaScript framework requirements
+
+**When NOT to Use Headless:**
+- ❌ Simple blogs (traditional themes are faster to build)
+- ❌ Clients need to edit all content in WordPress
+- ❌ Limited development resources
+- ❌ No frontend JavaScript expertise on team
+
+### What's Next?
+
+**Week 10 Preview:** Performance & Security Deep Dive
+- Diagnose and fix out-of-memory errors
+- Optimize N+1 database queries
+- Implement Redis object caching
+- Conduct comprehensive OWASP Top 10 security audits
+
+---
+
+## Headless WordPress Checklist
+
+Use this when building headless WordPress projects:
+
+### API Setup
+- [ ] Install WPGraphQL or configure REST API
+- [ ] Set up JWT authentication
+- [ ] Create custom endpoints for app-specific data
+- [ ] Enable CORS for frontend domain
+- [ ] Test all endpoints with Postman/GraphiQL
+
+### Security
+- [ ] JWT secret key configured
+- [ ] API rate limiting enabled
+- [ ] CORS restricted to frontend domain only
+- [ ] Capability checks on all custom endpoints
+- [ ] Input validation and sanitization
+
+### Frontend Integration
+- [ ] Apollo Client or fetch configured
+- [ ] Error handling for API failures
+- [ ] Loading states for async data
+- [ ] ISR or SSG configured for static pages
+- [ ] Environment variables for API URL
+
+### Performance
+- [ ] Query optimization (avoid N+1)
+- [ ] Image optimization with Next.js Image
+- [ ] Caching strategy implemented
+- [ ] CDN configured for static assets
+- [ ] Lighthouse score > 90
+
+### Deployment
+- [ ] WordPress backend deployed and accessible
+- [ ] Frontend deployed (Vercel/Netlify)
+- [ ] Environment variables configured
+- [ ] Custom domain configured
+- [ ] SSL certificates valid
+
+---
+
+## Resources
+
+### Official Documentation
+- [WPGraphQL Documentation](https://www.wpgraphql.com/)
+- [WordPress REST API Handbook](https://developer.wordpress.org/rest-api/)
+- [JWT Authentication for WP REST API](https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Apollo Client Documentation](https://www.apollographql.com/docs/react/)
+
+### Learning Resources
+- [Headless WordPress with Next.js Course](https://www.wpgraphql.com/courses)
+- [WPGraphQL Recipes](https://www.wpgraphql.com/recipes)
+- [Next.js ISR Guide](https://nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration)
+
+### Useful Plugins
+- WPGraphQL - Core GraphQL functionality
+- WPGraphQL for ACF - Expose ACF fields
+- WPGraphQL JWT Authentication - Secure authentication
+- Headless Mode - Disable frontend theme
+
+---
+
+## Troubleshooting Common Issues
+
+### Issue: CORS Errors
+
+**Problem:** Frontend can't access WordPress API due to CORS policy.
+
+**Solution:**
+```php
+// wp-content/themes/your-theme/functions.php
+add_action('rest_api_init', function() {
+    header('Access-Control-Allow-Origin: https://your-frontend.com');
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Authorization, Content-Type');
+}, 15);
+```
+
+### Issue: JWT Token Expired
+
+**Problem:** Authentication fails after token expires.
+
+**Solution:**
+Implement token refresh logic in your frontend:
+```typescript
+// lib/auth.ts
+export async function refreshToken(token: string) {
+  const response = await fetch('https://your-site.com/wp-json/jwt-auth/v1/token/refresh', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  return response.json();
+}
+```
+
+### Issue: Slow GraphQL Queries
+
+**Problem:** Queries taking multiple seconds to complete.
+
+**Solution:**
+- Use query complexity analysis
+- Limit nested query depth
+- Implement query caching
+- Add pagination with reasonable limits
+
+```graphql
+# Good: Limited query
+query GetPosts {
+  posts(first: 10) {
+    nodes {
+      id
+      title
+      # Only request fields you need
+    }
+  }
+}
+
+# Bad: Unlimited query
+query GetAllPosts {
+  posts {
+    nodes {
+      id
+      title
+      content # Heavy field
+      # Nested queries multiply load
+      comments {
+        nodes {
+          content
+          author {
+            node {
+              posts {
+                nodes {
+                  title # N+1 problem!
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+## Need Help?
+
+- Ask Claude to explain any headless WordPress concepts
+- Test all API endpoints before building frontend
+- Use GraphiQL IDE to explore your schema
+- Check Next.js deployment logs for build errors
+- Reference official WPGraphQL documentation
+
+**Remember:** Headless WordPress is powerful but complex. Start simple, test thoroughly, and scale gradually!
