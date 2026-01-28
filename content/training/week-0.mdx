@@ -1,0 +1,1011 @@
+---
+title: "Week 0: CLI Fundamentals"
+description: "Essential command-line tools for WordPress development - Terminal basics, WP-CLI, and Git"
+week: 0
+order: 0
+---
+
+# Week 0: CLI Fundamentals
+
+**Pre-requisite module - Complete before starting Week 1**
+
+Modern WordPress development moves fast. While GUIs are convenient, command-line tools unlock true productivity. This module teaches you the essential CLI skills you need to work efficiently with WordPress, manage sites at scale, and integrate with modern development workflows.
+
+Whether you're migrating sites, managing multiple WordPress installations, or working with version control, these CLI fundamentals will save you hours every week.
+
+---
+
+## Learning Objectives
+
+By the end of this week, you'll be able to:
+- Navigate WordPress directories and manage files using terminal commands
+- Install and use WP-CLI for WordPress site administration
+- Use Git CLI for version control workflows
+- Understand when CLI tools are more efficient than GUI alternatives
+- Integrate CLI tools into your WordPress development workflow
+
+## Time Commitment
+
+- Exercise 1: 30 minutes (Terminal Basics)
+- Exercise 2: 45 minutes (WP-CLI Installation & Usage)
+- Exercise 3: 45 minutes (Git CLI Essentials)
+- **Total: ~2 hours**
+
+---
+
+## Exercise 1: Terminal Basics for WordPress (30 min)
+
+**Task:** Master essential terminal commands for navigating and managing WordPress installations.
+
+**Context:** While you may use a GUI file manager daily, terminal commands are faster for repetitive tasks, essential for server management, and required for automation. These fundamentals apply whether you're on Mac, Linux, or Windows (via Git Bash).
+
+### Requirements
+
+1. Terminal application (Mac Terminal, Windows Git Bash, or Linux terminal)
+2. Access to a local WordPress installation
+3. Basic familiarity with your operating system
+
+### Essential Commands
+
+#### Navigation & Inspection
+
+```bash
+# Print current directory (where am I?)
+pwd
+# Output: /Users/yourusername/Sites/my-wordpress-site
+
+# List files in current directory
+ls
+# Output: index.php  wp-admin/  wp-content/  wp-includes/  wp-config.php
+
+# List with details (permissions, size, date)
+ls -la
+# Shows hidden files (starting with .) and detailed info
+
+# Change directory (navigate folders)
+cd wp-content/plugins
+pwd
+# Output: /Users/yourusername/Sites/my-wordpress-site/wp-content/plugins
+
+# Go up one directory
+cd ..
+pwd
+# Output: /Users/yourusername/Sites/my-wordpress-site/wp-content
+
+# Go to home directory
+cd ~
+
+# Go to a specific path (absolute path)
+cd /Users/yourusername/Sites/my-wordpress-site
+```
+
+**Why this matters:** WordPress projects have deep folder structures (themes/plugins/uploads). Fast navigation saves time.
+
+#### File & Directory Management
+
+```bash
+# Create a new directory
+mkdir my-custom-plugin
+cd my-custom-plugin
+
+# Create a file
+touch my-plugin.php
+
+# Copy file
+cp my-plugin.php my-plugin-backup.php
+
+# Copy directory recursively (with all contents)
+cp -r my-custom-plugin my-custom-plugin-backup
+
+# Move/rename file
+mv my-plugin-backup.php backup.php
+
+# Move directory
+mv my-custom-plugin-backup ../backups/
+
+# Remove file (careful - no undo!)
+rm backup.php
+
+# Remove directory and contents (VERY CAREFUL!)
+rm -rf old-plugin-folder
+```
+
+**WordPress use case:** Quickly duplicate themes for testing, organize plugin folders, clean up old backups.
+
+#### Viewing File Contents
+
+```bash
+# Display entire file
+cat wp-config.php
+
+# View file with scrolling (press 'q' to quit)
+less wp-config.php
+
+# Show first 10 lines
+head wp-config.php
+
+# Show last 10 lines (useful for logs)
+tail wp-content/debug.log
+
+# Follow log file in real-time (Ctrl+C to stop)
+tail -f wp-content/debug.log
+
+# Show first 20 lines
+head -n 20 functions.php
+```
+
+**WordPress use case:** Quickly check configuration, monitor debug logs, review code without opening an editor.
+
+#### Searching Files
+
+```bash
+# Find files by name (recursive search)
+find . -name "*.php"
+# Finds all PHP files in current directory and subdirectories
+
+# Find specific file
+find . -name "wp-config.php"
+
+# Search file contents for text
+grep "define('WP_DEBUG'" wp-config.php
+# Output: define('WP_DEBUG', true);
+
+# Search all PHP files for a function
+grep -r "wp_enqueue_style" wp-content/themes/my-theme/
+
+# Case-insensitive search
+grep -i "error" wp-content/debug.log
+
+# Count matches
+grep -c "WP_Query" wp-content/themes/my-theme/functions.php
+```
+
+**WordPress use case:** Find where a function is used, locate configuration settings, search error logs.
+
+#### File Permissions (Mac/Linux)
+
+```bash
+# View permissions
+ls -la wp-config.php
+# Output: -rw-r--r--  1 user  staff  3200 Jan 15 10:30 wp-config.php
+
+# Make file executable
+chmod +x script.sh
+
+# WordPress-recommended permissions
+chmod 644 wp-config.php      # Files: read/write for owner, read for others
+chmod 755 wp-content/uploads # Folders: rwx for owner, rx for others
+
+# Secure wp-config.php (owner only)
+chmod 600 wp-config.php
+
+# Change ownership (requires sudo)
+sudo chown www-data:www-data wp-content/uploads
+```
+
+**WordPress use case:** Fix permission issues preventing uploads, secure sensitive files, troubleshoot file access errors.
+
+### Hands-On Practice
+
+**Task:** Navigate to your WordPress installation and complete these challenges:
+
+1. **Navigate the structure:**
+   ```bash
+   cd /path/to/your/wordpress
+   ls -la
+   cd wp-content/themes
+   ls
+   cd ../../
+   pwd
+   ```
+
+2. **Find all style.css files (theme files):**
+   ```bash
+   find . -name "style.css"
+   ```
+
+3. **Search for database credentials in wp-config.php:**
+   ```bash
+   grep "DB_NAME\|DB_USER\|DB_PASSWORD" wp-config.php
+   ```
+
+4. **Check last 20 entries in debug log (if it exists):**
+   ```bash
+   tail -n 20 wp-content/debug.log
+   ```
+
+5. **Find all files containing "wp_enqueue_script":**
+   ```bash
+   grep -r "wp_enqueue_script" wp-content/themes/
+   ```
+
+### Success Criteria
+
+- ✅ Can navigate to any WordPress directory using `cd`
+- ✅ Can list files with `ls` and understand the output
+- ✅ Can search for files using `find`
+- ✅ Can search file contents using `grep`
+- ✅ Understand file permissions and when to modify them
+- ✅ Comfortable viewing files with `cat`, `less`, `head`, `tail`
+
+### Skills Practiced
+
+- Terminal navigation
+- File and directory management
+- Content searching with grep
+- File permission management
+- Log file monitoring
+
+---
+
+## Exercise 2: WP-CLI Installation & WordPress Management (45 min)
+
+**Task:** Install WP-CLI and use it to manage WordPress sites via command line.
+
+**Context:** WP-CLI is the official WordPress command-line interface. It's dramatically faster than the admin dashboard for repetitive tasks like plugin updates, database operations, and site migrations. If you manage multiple WordPress sites, WP-CLI will save you hours every week.
+
+### Part 1: Install WP-CLI (10 min)
+
+**Mac/Linux Installation:**
+
+```bash
+# Download WP-CLI
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+
+# Make it executable
+chmod +x wp-cli.phar
+
+# Move to system path (requires sudo)
+sudo mv wp-cli.phar /usr/local/bin/wp
+
+# Verify installation
+wp --version
+# Output: WP-CLI 2.10.0
+```
+
+**Alternative - Mac with Homebrew:**
+```bash
+brew install wp-cli
+wp --version
+```
+
+**Windows Installation (Git Bash):**
+
+1. Download from: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+2. Save as `wp.bat` in your system PATH or project directory
+3. Verify: `wp --version`
+
+**Verify WP-CLI works:**
+```bash
+# Navigate to WordPress directory
+cd /path/to/wordpress
+
+# Check WordPress version
+wp core version
+# Output: 6.4.2
+
+# Get help
+wp help
+wp plugin --help
+```
+
+### Part 2: Essential WP-CLI Commands (35 min)
+
+#### Plugin Management
+
+```bash
+# List all plugins
+wp plugin list
+# Shows: name, status, update, version
+
+# Install a plugin
+wp plugin install advanced-custom-fields
+
+# Install and activate
+wp plugin install contact-form-7 --activate
+
+# Activate existing plugin
+wp plugin activate akismet
+
+# Deactivate plugin
+wp plugin deactivate jetpack
+
+# Update plugin
+wp plugin update akismet
+
+# Update all plugins
+wp plugin update --all
+
+# Delete plugin (deactivates first)
+wp plugin delete hello-dolly
+
+# Search WordPress.org for plugins
+wp plugin search "backup"
+```
+
+**Why this is faster:** Installing 10 plugins via admin: ~5 minutes. Via WP-CLI: ~30 seconds.
+
+#### Theme Management
+
+```bash
+# List themes
+wp theme list
+
+# Install theme
+wp theme install twentytwentyfour
+
+# Activate theme
+wp theme activate twentytwentyfour
+
+# Update theme
+wp theme update twentytwentythree
+
+# Delete theme
+wp theme delete twentytwentytwo
+
+# Get active theme details
+wp theme get twentytwentyfour
+```
+
+#### Database Operations
+
+```bash
+# Export database (backup)
+wp db export
+# Creates backup.sql in current directory
+
+# Export to specific file
+wp db export backup-2024-01-15.sql
+
+# Import database
+wp db import backup-2024-01-15.sql
+
+# Search and replace (for site migrations)
+wp search-replace 'oldsite.com' 'newsite.com'
+
+# Dry run (see what would change, don't actually change)
+wp search-replace 'oldsite.com' 'newsite.com' --dry-run
+
+# Database optimization
+wp db optimize
+
+# Run database query
+wp db query "SELECT option_name, option_value FROM wp_options WHERE option_name LIKE '%siteurl%'"
+```
+
+**Critical use case:** Moving WordPress from localhost to production requires search-replace on ALL URLs in database.
+
+#### Post & User Management
+
+```bash
+# List posts
+wp post list
+
+# Create a post
+wp post create --post_type=post --post_title='My New Post' --post_content='Content here' --post_status=publish
+
+# Delete post by ID
+wp post delete 123
+
+# List users
+wp user list
+
+# Create admin user
+wp user create newadmin admin@example.com --role=administrator --user_pass=SecurePassword123
+
+# Update user password
+wp user update 1 --user_pass=NewPassword123
+
+# Delete user (reassign posts to user 1)
+wp user delete 5 --reassign=1
+```
+
+#### Cache & Transients
+
+```bash
+# Flush object cache
+wp cache flush
+
+# Delete all transients
+wp transient delete --all
+
+# Delete expired transients
+wp transient delete --expired
+```
+
+#### Site Maintenance
+
+```bash
+# Activate maintenance mode
+wp maintenance-mode activate
+
+# Deactivate maintenance mode
+wp maintenance-mode deactivate
+
+# Check core updates
+wp core check-update
+
+# Update WordPress core
+wp core update
+
+# Update database after core update
+wp core update-db
+
+# Verify core file integrity
+wp core verify-checksums
+```
+
+### Part 3: Real-World WordPress Workflows (Hands-On)
+
+**Workflow 1: Fresh WordPress Site Setup (5 min)**
+
+```bash
+# Navigate to project directory
+cd ~/Sites/new-client-site
+
+# Download WordPress
+wp core download
+
+# Create wp-config.php
+wp config create --dbname=client_db --dbuser=root --dbpass=root --dbhost=localhost
+
+# Install WordPress
+wp core install --url=http://client-site.local --title="Client Site" --admin_user=admin --admin_password=SecurePass123 --admin_email=admin@example.com
+
+# Install essential plugins
+wp plugin install advanced-custom-fields contact-form-7 wordpress-seo --activate
+
+# Install and activate theme
+wp theme install hello-elementor --activate
+
+echo "✅ Site ready in under 2 minutes!"
+```
+
+**Workflow 2: Site Migration (Database)**
+
+```bash
+# On OLD site - export database
+wp db export migration-backup.sql
+
+# On NEW site - import database
+wp db import migration-backup.sql
+
+# Update URLs in database
+wp search-replace 'https://oldsite.com' 'https://newsite.com' --dry-run
+# Check output, then run for real:
+wp search-replace 'https://oldsite.com' 'https://newsite.com'
+
+# Flush cache
+wp cache flush
+
+# Verify
+wp option get siteurl
+wp option get home
+```
+
+**Workflow 3: Bulk Plugin Updates (Every Monday)**
+
+```bash
+# Check for updates
+wp plugin list --update=available
+
+# Backup database first
+wp db export pre-update-backup.sql
+
+# Update all plugins
+wp plugin update --all
+
+# Verify site still works (check homepage)
+wp option get siteurl
+
+echo "✅ All plugins updated, backup created"
+```
+
+### Success Criteria
+
+- ✅ WP-CLI installed and `wp --version` works
+- ✅ Can list, install, activate, and delete plugins via CLI
+- ✅ Can export and import databases
+- ✅ Can perform search-replace for site migrations
+- ✅ Understand when WP-CLI is faster than GUI
+- ✅ Successfully completed at least one real-world workflow
+
+### Skills Practiced
+
+- WP-CLI installation and configuration
+- Plugin and theme management via command line
+- Database backup and migration
+- Search-replace for WordPress migrations
+- WordPress automation workflows
+
+---
+
+## Exercise 3: Git CLI Essentials for WordPress Development (45 min)
+
+**Task:** Learn essential Git CLI commands for version control in WordPress development.
+
+**Context:** Git is the industry standard for version control. While GUIs exist (GitHub Desktop, SourceTree), knowing Git CLI makes you faster and more flexible. Every WordPress developer should know how to commit code, manage branches, and push to remote repositories.
+
+### Part 1: Git Installation & Configuration (10 min)
+
+**Mac:**
+```bash
+# Check if Git is installed
+git --version
+
+# If not installed, install via Homebrew
+brew install git
+```
+
+**Windows:**
+Download from https://git-scm.com/download/win
+
+**Linux:**
+```bash
+sudo apt-get install git    # Ubuntu/Debian
+sudo yum install git        # CentOS/RHEL
+```
+
+**Configure Git (Required):**
+```bash
+# Set your name (appears in commits)
+git config --global user.name "Your Name"
+
+# Set your email (should match GitHub email)
+git config --global user.email "you@example.com"
+
+# Set default branch name to 'main'
+git config --global init.defaultBranch main
+
+# Verify configuration
+git config --list
+```
+
+### Part 2: Essential Git Commands (20 min)
+
+#### Initializing a Repository
+
+```bash
+# Navigate to your WordPress theme/plugin
+cd ~/Sites/my-wordpress/wp-content/themes/my-theme
+
+# Initialize Git repository
+git init
+# Output: Initialized empty Git repository
+
+# Check status
+git status
+# Shows untracked files
+```
+
+#### Basic Git Workflow (Add → Commit → Push)
+
+```bash
+# See what's changed
+git status
+
+# Add specific file
+git add style.css
+
+# Add multiple files
+git add functions.php header.php footer.php
+
+# Add all PHP files
+git add *.php
+
+# Add everything in current directory
+git add .
+
+# Check what's staged
+git status
+
+# Commit with message
+git commit -m "Initial theme setup with custom header"
+
+# View commit history
+git log
+git log --oneline    # Compact view
+```
+
+#### Working with Remote Repositories (GitHub/GitLab)
+
+```bash
+# Add remote repository (GitHub)
+git remote add origin https://github.com/yourusername/my-theme.git
+
+# Verify remote
+git remote -v
+
+# Push to remote (first time)
+git push -u origin main
+
+# Push subsequent changes
+git push
+
+# Pull changes from remote
+git pull origin main
+
+# Clone existing repository
+git clone https://github.com/yourusername/my-plugin.git
+cd my-plugin
+```
+
+#### Branching for Features
+
+```bash
+# Create new branch
+git branch feature/custom-login
+
+# Switch to branch
+git checkout feature/custom-login
+
+# Create and switch in one command
+git checkout -b feature/social-share
+
+# List all branches
+git branch
+
+# Make changes, commit
+git add login.php
+git commit -m "Add custom login page design"
+
+# Switch back to main
+git checkout main
+
+# Merge feature branch into main
+git merge feature/custom-login
+
+# Delete branch (after merged)
+git branch -d feature/custom-login
+
+# Push branch to remote
+git push origin feature/social-share
+```
+
+#### Viewing Changes
+
+```bash
+# See unstaged changes
+git diff
+
+# See staged changes
+git diff --staged
+
+# See changes in specific file
+git diff functions.php
+
+# View commit history with details
+git log -p
+
+# View specific commit
+git show abc1234    # Use commit hash from git log
+```
+
+#### Undoing Changes
+
+```bash
+# Discard changes in file (before staging)
+git checkout -- functions.php
+
+# Unstage file (keep changes)
+git reset functions.php
+
+# Undo last commit (keep changes staged)
+git reset --soft HEAD~1
+
+# Undo last commit (unstage changes)
+git reset HEAD~1
+
+# DANGER: Undo last commit and delete changes
+git reset --hard HEAD~1
+```
+
+### Part 3: WordPress-Specific Git Workflows
+
+#### Workflow 1: Theme Development
+
+**Setup .gitignore (ignore unnecessary files):**
+
+```bash
+# Create .gitignore file
+cat > .gitignore << 'EOF'
+# WordPress files to ignore
+node_modules/
+.DS_Store
+*.log
+.env
+.vscode/
+dist/
+EOF
+
+# Add and commit .gitignore
+git add .gitignore
+git commit -m "Add .gitignore for WordPress theme"
+```
+
+**Typical development flow:**
+```bash
+# Start new feature
+git checkout -b feature/hero-section
+
+# Make changes to template files
+# ... edit code ...
+
+# Check what changed
+git status
+git diff
+
+# Stage and commit
+git add header.php style.css
+git commit -m "Add responsive hero section with CTA"
+
+# Push to remote
+git push origin feature/hero-section
+
+# On GitHub: Create Pull Request
+# After review/approval, merge
+
+# Switch back to main and pull
+git checkout main
+git pull origin main
+```
+
+#### Workflow 2: Plugin Development
+
+```bash
+# Initialize plugin repo
+cd wp-content/plugins/my-custom-plugin
+git init
+
+# Create initial structure
+mkdir includes assets
+touch my-plugin.php README.md
+
+# Add files
+git add .
+git commit -m "Initial plugin structure"
+
+# Connect to GitHub
+git remote add origin https://github.com/yourusername/my-plugin.git
+git push -u origin main
+
+# Development cycle
+git checkout -b feature/admin-settings
+# ... develop admin settings page ...
+git add includes/admin-settings.php
+git commit -m "Add admin settings page with options API"
+git push origin feature/admin-settings
+```
+
+#### Workflow 3: Hotfix in Production
+
+```bash
+# Create hotfix branch from main
+git checkout main
+git pull origin main
+git checkout -b hotfix/security-patch
+
+# Make critical fix
+# ... fix security issue in authentication ...
+
+# Commit and push immediately
+git add includes/auth.php
+git commit -m "Fix: Security patch for authentication bypass"
+git push origin hotfix/security-patch
+
+# Merge to main
+git checkout main
+git merge hotfix/security-patch
+git push origin main
+
+# Deploy to production
+```
+
+### Part 4: Best Practices for WordPress Git
+
+**Commit Message Format:**
+
+```bash
+# Good commit messages:
+git commit -m "Add: Custom post type for team members"
+git commit -m "Fix: Mobile menu toggle not working on iOS"
+git commit -m "Update: WooCommerce checkout styles for accessibility"
+git commit -m "Refactor: Extract header logic to partial template"
+
+# Bad commit messages (avoid):
+git commit -m "updates"
+git commit -m "fixed stuff"
+git commit -m "asdfgh"
+```
+
+**What to commit vs ignore:**
+
+✅ **DO commit:**
+- Theme/plugin PHP files
+- JavaScript and CSS source files
+- Configuration examples (`.env.example`)
+- Documentation
+
+❌ **DON'T commit:**
+- `node_modules/`
+- Compiled/minified assets (if they can be rebuilt)
+- `.env` files with credentials
+- WordPress core files
+- User uploads
+- Database dumps with sensitive data
+
+### Hands-On Practice
+
+**Task:** Version control a WordPress theme/plugin:
+
+1. **Initialize repository:**
+   ```bash
+   cd /path/to/your/theme
+   git init
+   ```
+
+2. **Create .gitignore:**
+   ```bash
+   echo "node_modules/" > .gitignore
+   echo ".DS_Store" >> .gitignore
+   ```
+
+3. **Make first commit:**
+   ```bash
+   git add .
+   git commit -m "Initial commit: Theme foundation"
+   ```
+
+4. **Create GitHub repository** (via github.com)
+
+5. **Connect and push:**
+   ```bash
+   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+   git push -u origin main
+   ```
+
+6. **Make a change, commit, push:**
+   ```bash
+   # Edit a file
+   git add style.css
+   git commit -m "Update: Header styles for mobile responsiveness"
+   git push
+   ```
+
+### Success Criteria
+
+- ✅ Git installed and configured with name/email
+- ✅ Can initialize repository with `git init`
+- ✅ Can stage changes with `git add`
+- ✅ Can commit with descriptive messages
+- ✅ Can push to GitHub/GitLab remote repository
+- ✅ Understand branching for features
+- ✅ Know what to commit vs ignore in WordPress projects
+
+### Skills Practiced
+
+- Git installation and configuration
+- Repository initialization
+- Basic Git workflow (add, commit, push)
+- Branching and merging
+- Remote repository management
+- WordPress-specific Git workflows
+- Best practices for commit messages
+
+---
+
+## Week 0 Wrap-Up
+
+### Reflection Questions
+
+1. **Terminal Efficiency**: What tasks can you now do faster via CLI than GUI?
+2. **WP-CLI Impact**: How could WP-CLI save you time managing WordPress sites?
+3. **Version Control**: Why is Git essential for professional WordPress development?
+4. **Workflow Integration**: How will you integrate these CLI tools into your daily workflow?
+
+### Comfort Level Self-Assessment
+
+Rate your comfort with these Week 0 skills (1-10):
+- Terminal navigation (cd, ls, pwd): ___
+- File searching (find, grep): ___
+- WP-CLI for plugin/theme management: ___
+- WP-CLI for database operations: ___
+- Git basic workflow (add, commit, push): ___
+- Git branching and merging: ___
+
+**Scoring:**
+- 7-10: Ready for Week 1
+- 4-6: Review exercises, practice more
+- 1-3: Repeat Week 0, seek help
+
+### CLI Cheat Sheet
+
+**Terminal Basics:**
+```bash
+pwd                 # Print working directory
+ls -la              # List files with details
+cd [directory]      # Change directory
+mkdir [name]        # Create directory
+rm [file]           # Delete file
+grep "text" [file]  # Search file contents
+find . -name "*.php" # Find all PHP files
+```
+
+**WP-CLI Essentials:**
+```bash
+wp plugin list              # List plugins
+wp plugin install [slug]    # Install plugin
+wp plugin activate [slug]   # Activate plugin
+wp db export [file]         # Backup database
+wp search-replace [old] [new] # Update URLs
+wp cache flush              # Clear cache
+```
+
+**Git Essentials:**
+```bash
+git init                # Initialize repo
+git add .               # Stage all changes
+git commit -m "message" # Commit changes
+git push origin main    # Push to remote
+git pull origin main    # Pull from remote
+git branch [name]       # Create branch
+git checkout [name]     # Switch branch
+git merge [branch]      # Merge branch
+```
+
+### Common Issues & Solutions
+
+**Terminal:**
+- **Issue:** "Permission denied"
+  - **Solution:** Use `sudo` before command (Mac/Linux) or run as Administrator (Windows)
+
+- **Issue:** "Command not found"
+  - **Solution:** Tool not installed or not in PATH. Install or add to PATH.
+
+**WP-CLI:**
+- **Issue:** "Error: This does not seem to be a WordPress installation."
+  - **Solution:** Navigate to WordPress root directory (where wp-config.php lives)
+
+- **Issue:** "Error: Could not connect to database"
+  - **Solution:** Check database credentials in wp-config.php
+
+**Git:**
+- **Issue:** "fatal: not a git repository"
+  - **Solution:** Run `git init` first
+
+- **Issue:** "Updates were rejected because the remote contains work that you do not have locally"
+  - **Solution:** Run `git pull origin main` first, then push
+
+---
+
+## Resources
+
+### Official Documentation
+- [WP-CLI Handbook](https://make.wordpress.org/cli/handbook/)
+- [WP-CLI Command Reference](https://developer.wordpress.org/cli/commands/)
+- [Git Documentation](https://git-scm.com/doc)
+- [Pro Git Book](https://git-scm.com/book/en/v2) (free online)
+
+### Interactive Learning
+- [Learn Git Branching](https://learngitbranching.js.org/) - Visual Git tutorial
+- [WP-CLI Quick Start](https://make.wordpress.org/cli/handbook/quick-start/)
+
+### Community Resources
+- [WP-CLI GitHub](https://github.com/wp-cli/wp-cli)
+- [Git Cheat Sheet](https://education.github.com/git-cheat-sheet-education.pdf)
+
+---
+
+## What's Next?
+
+Congratulations! You now have the CLI fundamentals needed for modern WordPress development.
+
+**Next Step:** [Week 1: Foundation →](/training/week-1)
+
+In Week 1, you'll:
+- Install and authenticate Claude Code CLI
+- Create your first CLAUDE.md configuration
+- Make your first plugin modification with Claude
+- Understand autonomous vs advisory AI modes
+
+**Remember:** CLI tools get faster with practice. Don't worry if you need to reference this guide frequently at first. Within 2-3 weeks, these commands will become second nature!

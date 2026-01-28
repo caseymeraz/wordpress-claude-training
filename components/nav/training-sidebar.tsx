@@ -15,6 +15,12 @@ import {
 
 const navigation = [
   {
+    title: 'Prerequisites',
+    items: [
+      { title: 'Week 0: CLI Fundamentals', href: '/training/week-0', icon: GraduationCap },
+    ],
+  },
+  {
     title: 'Getting Started',
     items: [
       { title: 'Home', href: '/', icon: Home },
