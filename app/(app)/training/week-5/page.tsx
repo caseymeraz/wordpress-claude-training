@@ -1,8 +1,22 @@
-export default function WeekPlaceholder() {
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { getContentBySlug } from '@/lib/markdown/get-content';
+import { useMDXComponents } from '@/components/markdown/mdx-components';
+import { notFound } from 'next/navigation';
+
+export default async function Week5Page() {
+  const content = getContentBySlug('training', 'week-5');
+
+  if (!content) {
+    notFound();
+  }
+
+  const components = useMDXComponents({});
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold mb-4">Week 5</h1>
-      <p className="text-muted-foreground">Content coming soon...</p>
+    <div className="container max-w-4xl py-8">
+      <article className="prose prose-neutral dark:prose-invert max-w-none">
+        <MDXRemote source={content.content} components={components} />
+      </article>
     </div>
   );
 }

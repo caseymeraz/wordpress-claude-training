@@ -1,0 +1,183 @@
+---
+title: "Week 2: WordPress Patterns"
+description: "Create ACF field groups and Gutenberg blocks with Claude Code"
+week: 2
+order: 2
+---
+
+# Week 2: WordPress Patterns (ACF & Gutenberg)
+
+Welcome to Week 2! This week focuses on building WordPress features with Claude Code. You'll create ACF field groups, build a Gutenberg block, and learn to use the WordPress Skills package for quality checks.
+
+## Learning Objectives
+
+- Create ACF field groups using Claude Code
+- Build basic Gutenberg block with server-side rendering
+- Install and use WordPress Skills package
+- Practice iterative refinement with Claude
+
+## Time Commitment
+
+- Exercise 1: 30 minutes (ACF Field Group)
+- Exercise 2: 45 minutes (Gutenberg Block)
+- Exercise 3: 30 minutes (WordPress Skills)
+- **Total: ~2 hours**
+
+---
+
+## Exercise 1: ACF Field Group Creation (30 min)
+
+**Task:** Create a "Team Member Details" field group for a team member custom post type.
+
+**Requirements:**
+- Field group name: "Team Member Details"
+- Location: Post type equals `team_member`
+- Fields to include:
+  - Job Title (text field)
+  - Bio (textarea, 3 rows)
+  - LinkedIn URL (url field)
+  - Photo (image field, return format: array)
+  - Featured Employee (true/false)
+- Create a template file to display all fields with proper escaping
+- Fields should appear in post editor
+
+**Success Criteria:**
+- ✅ Field group appears in ACF admin
+- ✅ All 5 fields present with correct types
+- ✅ Fields save correctly when editing team member post
+- ✅ Template displays all fields with proper escaping functions
+- ✅ No PHPCS violations
+
+**Skills Practiced:**
+- ACF configuration
+- Template integration
+- WordPress escaping functions
+- Asking Claude for specific field configurations
+
+**Tips:**
+- Use Claude to generate the ACF field group JSON
+- Ask Claude to create the template file with proper escaping
+- Test by creating a team member post and viewing it
+
+---
+
+## Exercise 2: Simple Gutenberg Block (45 min)
+
+**Task:** Create a "Featured Posts" dynamic block that displays recent posts from a selected category.
+
+**Requirements:**
+- Block name: "Featured Posts"
+- Block category: "widgets"
+- Settings:
+  - Category selector (dropdown of all categories)
+  - Number of posts to show (number input, default: 3)
+  - Show thumbnails (toggle, default: true)
+- Server-side rendering
+- Display post title, excerpt, and thumbnail (if enabled)
+- Link each post to its permalink
+
+**Success Criteria:**
+- ✅ Block appears in block inserter
+- ✅ Block settings work in editor sidebar
+- ✅ Block displays correct posts on frontend
+- ✅ Thumbnails toggle works
+- ✅ Category selector filters posts correctly
+- ✅ Code follows WordPress block standards
+
+**Skills Practiced:**
+- Gutenberg block architecture
+- Server-side rendering
+- Block attributes and controls
+- Dynamic WordPress queries
+- Working with WP_Query
+
+**Tips:**
+- Ask Claude to scaffold the complete block structure
+- Use `registerBlockType` with `render_callback`
+- Test with different categories and post counts
+- Preview changes in the editor
+
+---
+
+## Exercise 3: Install WordPress Skills & Performance Audit (30 min)
+
+**Task:** Install the WordPress Skills package and run your first performance audit.
+
+**Requirements:**
+- Install `elvismdev/claude-wordpress-skills` package
+- Run `/wp-perf-review` on your theme or plugin code
+- Review the performance report
+- Fix at least one performance issue identified
+- Document the fix in your CLAUDE.md
+
+**Success Criteria:**
+- ✅ Skills package installed successfully
+- ✅ `/wp-perf-review` command works
+- ✅ Performance report generated with findings
+- ✅ At least one issue fixed (code improvement made)
+- ✅ Fix documented with before/after code
+
+**Skills Practiced:**
+- Installing Claude Code plugins
+- Using skills commands
+- Performance optimization awareness
+- Code improvement iteration
+
+**Tips:**
+- Skills install: In Claude Code, use `/plugin marketplace add elvismdev/claude-wordpress-skills`
+- Run audit: `/wp-perf-review wp-content/themes/your-theme`
+- Common findings: N+1 queries, missing caching, unoptimized hooks
+- Ask Claude to explain any findings you don't understand
+
+---
+
+## Week 2 Wrap-Up
+
+### Reflection Questions
+
+1. **ACF Workflow**: How did Claude help speed up ACF field group creation compared to manual setup?
+2. **Block Development**: What was the most challenging part of creating the Gutenberg block?
+3. **Performance**: What performance issue did you fix? How much impact do you think it has?
+4. **Skills Usage**: How useful was the `/wp-perf-review` output? Was it actionable?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 2 skills (1-10):
+- Creating ACF field groups with Claude: ___
+- Building Gutenberg blocks: ___
+- Using WordPress Skills package: ___
+- Performance optimization awareness: ___
+
+### What's Next?
+
+**Week 3 Preview:** Debugging & Security
+- Debug real WordPress errors with Claude
+- Refactor legacy code
+- Security audits and vulnerability fixes
+- Learn WordPress anti-patterns to avoid
+
+---
+
+## Additional Resources
+
+### ACF Documentation
+- [ACF Field Group Registration](https://www.advancedcustomfields.com/resources/register-fields-via-php/)
+- [ACF Template Tags](https://www.advancedcustomfields.com/resources/)
+
+### Gutenberg Block Resources
+- [Block Editor Handbook](https://developer.wordpress.org/block-editor/)
+- [Block Registration](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/)
+- [Dynamic Blocks](https://developer.wordpress.org/block-editor/how-to-guides/block-tutorial/creating-dynamic-blocks/)
+
+### WordPress Skills Package
+- [GitHub Repository](https://github.com/elvismdev/claude-wordpress-skills)
+- Commands: `/wp-perf-review`, `/wp-perf`, `/security-audit`
+
+---
+
+## Need Help?
+
+- Review this week's exercises in your CLAUDE.md
+- Ask Claude to explain any concepts you're struggling with
+- Check your team's support channel
+- Remember: Claude can generate code, explain concepts, and debug issues

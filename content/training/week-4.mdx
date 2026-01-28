@@ -1,0 +1,387 @@
+---
+title: "Week 4: Automation & Quality"
+description: "Configure automated quality checks and team standards with Claude Code"
+week: 4
+order: 4
+---
+
+# Week 4: Automation & Quality
+
+Time to level up your workflow. This week you'll configure Claude Code hooks to automatically enforce quality standards, integrate PHPCS, and build team-wide consistency. These automations catch issues before they reach code review.
+
+## Learning Objectives
+
+- Configure Claude Code hooks for automated quality checks
+- Integrate PHPCS into workflow with auto-fix
+- Set up automated testing triggers
+- Build team quality standards
+
+## Time Commitment
+
+- Exercise 1: 45 minutes (PHPCS Hooks)
+- Exercise 2: 45 minutes (Automated Security Checks)
+- Exercise 3: 30 minutes (Custom Quality Check)
+- **Total: ~2 hours**
+
+---
+
+## Exercise 1: Configure PHPCS Hooks (45 min)
+
+**Task:** Set up hooks.json to run PHPCS before every commit with automatic fixing.
+
+**Goal:** Never commit code that violates WordPress coding standards.
+
+**Requirements:**
+- Configure `.claude/hooks.json` to run PHPCS on commit
+- Use WordPress coding standards ruleset
+- Enable automatic fixing (`phpcbf`)
+- Show results and block commit if critical issues remain
+- Document the setup in CLAUDE.md
+
+**Success Criteria:**
+- ✅ PHPCS runs automatically before git commits
+- ✅ Auto-fix corrects minor issues (spacing, indentation)
+- ✅ Commit blocks if critical violations remain
+- ✅ Hook configuration documented
+- ✅ Team can replicate your setup
+
+**Skills Practiced:**
+- Claude Code hooks configuration
+- PHPCS integration
+- Automated code quality
+- Git workflow automation
+
+**Hook Configuration Example:**
+```json
+{
+  "hooks": [
+    {
+      "name": "phpcs-check",
+      "pattern": "git commit",
+      "action": "Run PHPCS with WordPress standards",
+      "command": "vendor/bin/phpcs --standard=WordPress {changed_files}",
+      "enabled": true,
+      "blocking": true
+    },
+    {
+      "name": "phpcs-autofix",
+      "pattern": "git commit",
+      "action": "Auto-fix PHPCS issues",
+      "command": "vendor/bin/phpcbf --standard=WordPress {changed_files}",
+      "enabled": true,
+      "blocking": false
+    }
+  ]
+}
+```
+
+**Testing Your Hook:**
+1. Create a file with coding standards violations
+2. Try to commit it
+3. Watch PHPCS run and auto-fix
+4. Verify commit blocks if critical issues remain
+
+---
+
+## Exercise 2: Automated Security Checks (45 min)
+
+**Task:** Configure automated security audits for pull requests and pre-deployment.
+
+**Goal:** Catch security vulnerabilities before code reaches production.
+
+**Requirements:**
+- Add hook to run `/security-audit` before push
+- Create checklist of security requirements
+- Configure hook to check for common vulnerabilities:
+  - Missing nonce verification
+  - Unescaped output
+  - Unsanitized inputs
+  - Missing capability checks
+- Document security workflow in CLAUDE.md
+
+**Success Criteria:**
+- ✅ Security audit runs automatically before push
+- ✅ Common vulnerabilities detected
+- ✅ Clear failure messages with file locations
+- ✅ Security checklist documented
+- ✅ Team can use same workflow
+
+**Skills Practiced:**
+- Security automation
+- WordPress security patterns
+- Pre-deployment validation
+- Team process documentation
+
+**Hook Configuration Example:**
+```json
+{
+  "hooks": [
+    {
+      "name": "security-audit",
+      "pattern": "git push",
+      "action": "Run security audit on changed PHP files",
+      "command": "/security-audit {changed_php_files}",
+      "enabled": true,
+      "blocking": true
+    }
+  ]
+}
+```
+
+**Security Checks to Automate:**
+- Nonce verification in form handlers
+- Capability checks in admin pages
+- Sanitization on `$_POST` / `$_GET` usage
+- Escaping on `echo` statements
+- No direct database queries without `$wpdb->prepare()`
+
+---
+
+## Exercise 3: Custom Quality Check (30 min)
+
+**Task:** Create a custom hook to detect WordPress anti-patterns in your codebase.
+
+**Goal:** Prevent common mistakes like `query_posts()` and unlimited post queries.
+
+**Requirements:**
+- Create hook to check for anti-patterns:
+  - `query_posts()` usage (deprecated)
+  - `posts_per_page=-1` (performance issue)
+  - `@` error suppression
+  - Direct `$_POST` access without sanitization
+  - Missing translation functions
+- Hook should fail commit if anti-patterns found
+- Provide helpful error messages with line numbers
+
+**Success Criteria:**
+- ✅ Anti-patterns detected automatically
+- ✅ Clear error messages show exact locations
+- ✅ Commit blocked when issues found
+- ✅ Fix suggestions provided
+- ✅ Hook documented for team use
+
+**Skills Practiced:**
+- Custom quality rules
+- Pattern detection
+- Team standards enforcement
+- Automated feedback
+
+**Implementation Approach:**
+1. Ask Claude to create a grep-based check for anti-patterns
+2. Configure hook to run on PHP file changes
+3. Test with intentional violations
+4. Document patterns being checked
+
+**Example Anti-Pattern Check:**
+```bash
+# Check for query_posts usage
+if grep -rn "query_posts" wp-content/themes/my-theme/; then
+  echo "❌ Deprecated query_posts() found. Use WP_Query instead."
+  exit 1
+fi
+
+# Check for unlimited queries
+if grep -rn "posts_per_page.*-1" wp-content/themes/my-theme/; then
+  echo "❌ Unlimited query found (posts_per_page=-1). Set a limit."
+  exit 1
+fi
+```
+
+---
+
+## Week 4 Wrap-Up
+
+### Reflection Questions
+
+1. **Automation Value**: How much time do you think these hooks will save in code review?
+2. **Quality Improvement**: Which check caught the most issues in your codebase?
+3. **Team Impact**: How will these automations help maintain consistency across your team?
+4. **Custom Rules**: What other anti-patterns or patterns would be useful to check automatically?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 4 skills (1-10):
+- Configuring Claude Code hooks: ___
+- PHPCS integration and auto-fix: ___
+- Automated security checks: ___
+- Creating custom quality rules: ___
+
+### What's Next?
+
+**Week 5 Preview:** Advanced Features
+- Build complex WordPress features autonomously
+- Create custom REST API endpoints
+- Implement advanced ACF patterns
+- Handle edge cases and error states
+
+---
+
+## Complete Hooks Reference
+
+Here's a comprehensive hooks.json template with all recommended checks:
+
+```json
+{
+  "hooks": [
+    {
+      "name": "phpcs-autofix",
+      "pattern": "git commit",
+      "action": "Auto-fix PHPCS issues before commit",
+      "command": "vendor/bin/phpcbf --standard=WordPress {changed_php_files}",
+      "enabled": true,
+      "blocking": false
+    },
+    {
+      "name": "phpcs-check",
+      "pattern": "git commit",
+      "action": "Check WordPress coding standards",
+      "command": "vendor/bin/phpcs --standard=WordPress {changed_php_files}",
+      "enabled": true,
+      "blocking": true
+    },
+    {
+      "name": "security-audit",
+      "pattern": "git push",
+      "action": "Run security vulnerability scan",
+      "command": "/security-audit {changed_php_files}",
+      "enabled": true,
+      "blocking": true
+    },
+    {
+      "name": "performance-check",
+      "pattern": "git push",
+      "action": "Quick performance validation",
+      "command": "/wp-perf {changed_php_files}",
+      "enabled": true,
+      "blocking": false
+    },
+    {
+      "name": "anti-patterns",
+      "pattern": "git commit",
+      "action": "Check for WordPress anti-patterns",
+      "command": ".claude/scripts/check-antipatterns.sh {changed_php_files}",
+      "enabled": true,
+      "blocking": true
+    }
+  ]
+}
+```
+
+---
+
+## Hook Variables Reference
+
+Claude Code provides these variables for use in hooks:
+
+- `{changed_files}` - All files changed in commit/push
+- `{changed_php_files}` - Only PHP files that changed
+- `{changed_js_files}` - Only JavaScript files that changed
+- `{project_root}` - Root directory of your project
+- `{current_branch}` - Current git branch name
+
+---
+
+## PHPCS Setup Guide
+
+### Installation
+
+```bash
+# Install PHPCS and WordPress standards
+composer require --dev squizlabs/php_codesniffer
+composer require --dev wp-coding-standards/wpcs
+
+# Configure PHPCS to use WordPress standards
+vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
+vendor/bin/phpcs --config-set default_standard WordPress
+```
+
+### Configuration File (phpcs.xml)
+
+```xml
+<?xml version="1.0"?>
+<ruleset name="WordPress Coding Standards">
+    <description>Custom WordPress coding standards</description>
+
+    <!-- Check these paths -->
+    <file>wp-content/themes/my-theme</file>
+    <file>wp-content/plugins/my-plugin</file>
+
+    <!-- Exclude vendor and node_modules -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+
+    <!-- Use WordPress standards -->
+    <rule ref="WordPress"/>
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Extra"/>
+
+    <!-- PHP version -->
+    <config name="minimum_supported_wp_version" value="6.0"/>
+</ruleset>
+```
+
+---
+
+## Troubleshooting Hooks
+
+### Hook Not Running
+```bash
+# Check hooks are enabled
+cat .claude/hooks.json
+
+# Verify hook syntax
+claude hooks validate
+
+# Check hook logs
+claude hooks logs
+```
+
+### PHPCS Not Found
+```bash
+# Verify PHPCS installation
+vendor/bin/phpcs --version
+
+# Check PATH configuration
+which phpcs
+
+# Install if missing
+composer require --dev squizlabs/php_codesniffer
+```
+
+### Hook Blocking Valid Code
+```bash
+# Temporarily disable blocking
+"blocking": false
+
+# Or disable specific hook
+"enabled": false
+
+# Commit with --no-verify (use sparingly!)
+git commit --no-verify -m "message"
+```
+
+---
+
+## Additional Resources
+
+### Hooks
+- [Claude Code Hooks Documentation](https://docs.claude.com/hooks)
+- [Hook Configuration Examples](https://github.com/claudeai/hook-examples)
+
+### PHPCS
+- [PHP_CodeSniffer Documentation](https://github.com/squizlabs/PHP_CodeSniffer/wiki)
+- [WordPress Coding Standards](https://github.com/WordPress/WordPress-Coding-Standards)
+- [PHPCS Configuration](https://github.com/squizlabs/PHP_CodeSniffer/wiki/Configuration-Options)
+
+### CI/CD Integration
+- [GitHub Actions with PHPCS](https://github.com/marketplace/actions/php-codesniffer)
+- [GitLab CI with PHPCS](https://docs.gitlab.com/ee/ci/examples/php.html)
+
+---
+
+## Need Help?
+
+- Ask Claude to explain any hook configuration you don't understand
+- Test hooks with intentional violations to see them work
+- Document your hook setup for team reference
+- Check your team's support channel for questions

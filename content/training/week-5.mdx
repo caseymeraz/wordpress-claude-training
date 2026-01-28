@@ -1,0 +1,419 @@
+---
+title: "Week 5: Advanced Features"
+description: "Build complex WordPress features autonomously with Claude Code"
+week: 5
+order: 5
+---
+
+# Week 5: Advanced Features
+
+This week, the training wheels come off. You'll build complete, production-ready features with minimal guidance—just a goal and success criteria. These are the types of features clients request: AJAX forms, dynamic page builders, and complex integrations.
+
+## Learning Objectives
+
+- Build complex WordPress features autonomously
+- Create custom REST API endpoints with Claude
+- Implement advanced ACF patterns (repeaters, flexible content)
+- Handle edge cases and error states
+
+## Time Commitment
+
+- Exercise 1: 60 minutes (AJAX Contact Feature)
+- Exercise 2: 60 minutes (ACF Flexible Content Builder)
+- **Total: ~2 hours**
+
+---
+
+## Exercise 1: Build Complete AJAX Feature (60 min)
+
+**Goal:** Create a "Quick Contact" feature that submits via AJAX and displays in WordPress admin.
+
+**What It Should Do:**
+Users fill out a quick contact form on the frontend. When submitted:
+1. Form submits via AJAX (no page reload)
+2. Data validates and saves to database
+3. Admin receives email notification
+4. Submission appears in WordPress admin dashboard
+5. Admin can view all submissions in a custom table
+
+**Requirements (Figure Out Implementation):**
+- Frontend form with fields: name, email, phone, message
+- Client-side validation before submit
+- AJAX submission with loading state
+- Server-side validation and sanitization
+- Save to custom database table
+- Email notification to admin
+- Admin page to view submissions
+- Properly enqueued scripts and localized AJAX URL
+- Nonce verification for security
+- All inputs sanitized, all outputs escaped
+
+**Success Criteria:**
+- ✅ Form submits without page reload
+- ✅ Loading state shows during submission
+- ✅ Success/error messages display correctly
+- ✅ Data saves to database with timestamp
+- ✅ Admin receives email notification
+- ✅ Admin page displays all submissions
+- ✅ All security best practices followed
+- ✅ No JavaScript errors in console
+- ✅ Works on mobile devices
+
+**Skills Practiced:**
+- AJAX in WordPress
+- Custom database tables
+- Admin menu creation
+- Email notifications
+- JavaScript enqueuing
+- Complete feature architecture
+- Error handling
+
+**No Step-by-Step This Time:**
+Ask Claude: "Help me build a complete AJAX contact form feature that saves to a custom database table and shows submissions in WordPress admin."
+
+Then iteratively refine:
+- "Add email notifications"
+- "Show loading state during submission"
+- "Create admin page to view submissions"
+- "Add pagination to admin table"
+
+**Testing Checklist:**
+- [ ] Form displays correctly on frontend
+- [ ] Validation prevents invalid submissions
+- [ ] AJAX submission works (check network tab)
+- [ ] Database table created correctly
+- [ ] Data saves with proper sanitization
+- [ ] Admin receives email
+- [ ] Admin page loads without errors
+- [ ] Submissions display in admin table
+- [ ] No console errors
+- [ ] Works in different browsers
+
+---
+
+## Exercise 2: Advanced ACF Pattern - Page Builder (60 min)
+
+**Goal:** Create a flexible landing page builder using ACF Flexible Content with multiple section types.
+
+**What It Should Do:**
+Marketing team can build custom landing pages by selecting and arranging sections:
+- Hero section (headline, subheadline, CTA button, background image)
+- Features grid (repeater of feature: icon, title, description)
+- Testimonials carousel (repeater of testimonial: quote, author, photo, company)
+- CTA section (headline, description, button text, button link)
+
+Each section has its own styling and can be reordered/toggled on the page.
+
+**Requirements (Figure Out Implementation):**
+- ACF Flexible Content field group
+- 4 section layouts (hero, features, testimonials, CTA)
+- Each section configurable via ACF fields
+- Template loops through sections and renders each
+- Sections display correctly on frontend
+- Optional: Add section visibility toggle
+- Optional: Add section background color picker
+
+**Success Criteria:**
+- ✅ Flexible Content field group created
+- ✅ All 4 section types defined with proper fields
+- ✅ Template renders all section types correctly
+- ✅ Sections can be reordered in admin
+- ✅ Each section has unique styling
+- ✅ Repeater fields work (features, testimonials)
+- ✅ All ACF data properly escaped in template
+- ✅ Page displays correctly with all sections
+- ✅ Marketing team can build pages without code
+
+**Skills Practiced:**
+- ACF Flexible Content field type
+- Complex field configurations
+- Repeater field handling
+- Template architecture for modular content
+- Content builder patterns
+- Conditional rendering
+
+**Architecture Hints:**
+```php
+// Template structure:
+if (have_rows('page_sections')):
+    while (have_rows('page_sections')): the_row();
+        $layout = get_row_layout();
+
+        // Load section template
+        get_template_part('sections/' . $layout);
+    endwhile;
+endif;
+```
+
+**Ask Claude:**
+- "Create ACF Flexible Content field group with hero, features, testimonials, and CTA layouts"
+- "Generate template that loops through sections and renders each"
+- "Add repeater field for features within the features section"
+- "Style each section uniquely"
+
+**Testing Checklist:**
+- [ ] Flexible Content field appears in page editor
+- [ ] All 4 section types available
+- [ ] Sections can be added/removed/reordered
+- [ ] Hero section displays with background image
+- [ ] Features grid shows all features from repeater
+- [ ] Testimonials carousel displays correctly
+- [ ] CTA section button links work
+- [ ] Sections have distinct visual styles
+- [ ] No PHP errors or warnings
+- [ ] Content is properly escaped
+
+---
+
+## Week 5 Wrap-Up
+
+### Reflection Questions
+
+1. **Autonomous Building**: How did it feel to build features with less guidance? More challenging? More rewarding?
+2. **Problem Solving**: What was the hardest technical problem you solved this week?
+3. **Claude Collaboration**: How did you break down the problem when asking Claude for help?
+4. **Production Ready**: Do you feel these features are production-ready? What would you add/change?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 5 skills (1-10):
+- Building complex features autonomously: ___
+- AJAX in WordPress: ___
+- Advanced ACF patterns: ___
+- Complete feature architecture: ___
+
+### What's Next?
+
+**Week 6 Preview:** Production Integration
+- Use Claude for code review process
+- Create deployment checklists
+- Document Claude workflows for team
+- Establish team standards for AI-assisted development
+
+---
+
+## AJAX in WordPress Reference
+
+### Enqueueing Scripts
+
+```php
+function enqueue_ajax_scripts() {
+    wp_enqueue_script('my-ajax-script', get_template_directory_uri() . '/js/ajax.js', ['jquery'], '1.0', true);
+
+    wp_localize_script('my-ajax-script', 'ajaxData', [
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('my_ajax_nonce'),
+    ]);
+}
+add_action('wp_enqueue_scripts', 'enqueue_ajax_scripts');
+```
+
+### AJAX Handler
+
+```php
+function handle_ajax_request() {
+    // Verify nonce
+    check_ajax_referer('my_ajax_nonce', 'nonce');
+
+    // Get and sanitize data
+    $name = sanitize_text_field($_POST['name']);
+    $email = sanitize_email($_POST['email']);
+
+    // Process...
+
+    // Send response
+    wp_send_json_success(['message' => 'Success!']);
+}
+add_action('wp_ajax_my_action', 'handle_ajax_request');
+add_action('wp_ajax_nopriv_my_action', 'handle_ajax_request');
+```
+
+### JavaScript AJAX Call
+
+```javascript
+jQuery.ajax({
+    url: ajaxData.ajaxurl,
+    type: 'POST',
+    data: {
+        action: 'my_action',
+        nonce: ajaxData.nonce,
+        name: name,
+        email: email
+    },
+    beforeSend: function() {
+        // Show loading state
+    },
+    success: function(response) {
+        // Handle success
+    },
+    error: function(xhr, status, error) {
+        // Handle error
+    }
+});
+```
+
+---
+
+## ACF Flexible Content Reference
+
+### Field Group Configuration
+
+```php
+// Register via PHP (or use ACF UI)
+acf_add_local_field_group([
+    'key' => 'group_page_builder',
+    'title' => 'Page Builder',
+    'fields' => [
+        [
+            'key' => 'field_sections',
+            'label' => 'Page Sections',
+            'name' => 'page_sections',
+            'type' => 'flexible_content',
+            'layouts' => [
+                'hero' => [
+                    'key' => 'layout_hero',
+                    'name' => 'hero',
+                    'label' => 'Hero Section',
+                    'sub_fields' => [
+                        // Hero fields here
+                    ]
+                ],
+                // More layouts...
+            ]
+        ]
+    ],
+    'location' => [
+        [
+            [
+                'param' => 'post_type',
+                'operator' => '==',
+                'value' => 'page'
+            ]
+        ]
+    ]
+]);
+```
+
+### Template Usage
+
+```php
+<?php
+if (have_rows('page_sections')):
+    while (have_rows('page_sections')): the_row();
+
+        if (get_row_layout() == 'hero'):
+            $headline = get_sub_field('headline');
+            $subheadline = get_sub_field('subheadline');
+            ?>
+            <section class="hero">
+                <h1><?php echo esc_html($headline); ?></h1>
+                <p><?php echo esc_html($subheadline); ?></p>
+            </section>
+            <?php
+
+        elseif (get_row_layout() == 'features'):
+            if (have_rows('features')):
+                echo '<div class="features-grid">';
+                while (have_rows('features')): the_row();
+                    $title = get_sub_field('title');
+                    $description = get_sub_field('description');
+                    ?>
+                    <div class="feature">
+                        <h3><?php echo esc_html($title); ?></h3>
+                        <p><?php echo esc_html($description); ?></p>
+                    </div>
+                    <?php
+                endwhile;
+                echo '</div>';
+            endif;
+
+        endif;
+
+    endwhile;
+endif;
+?>
+```
+
+---
+
+## Custom Database Tables
+
+### Creating Tables
+
+```php
+function create_submissions_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'contact_submissions';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        name varchar(100) NOT NULL,
+        email varchar(100) NOT NULL,
+        phone varchar(20) DEFAULT '',
+        message text NOT NULL,
+        submitted_at datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY  (id)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
+register_activation_hook(__FILE__, 'create_submissions_table');
+```
+
+### Inserting Data
+
+```php
+global $wpdb;
+$table_name = $wpdb->prefix . 'contact_submissions';
+
+$wpdb->insert(
+    $table_name,
+    [
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'message' => $message
+    ],
+    ['%s', '%s', '%s', '%s']
+);
+```
+
+### Querying Data
+
+```php
+global $wpdb;
+$table_name = $wpdb->prefix . 'contact_submissions';
+
+$results = $wpdb->get_results(
+    "SELECT * FROM $table_name ORDER BY submitted_at DESC LIMIT 50"
+);
+```
+
+---
+
+## Additional Resources
+
+### AJAX
+- [WordPress AJAX Documentation](https://developer.wordpress.org/plugins/javascript/ajax/)
+- [wp_localize_script() Reference](https://developer.wordpress.org/reference/functions/wp_localize_script/)
+
+### ACF Flexible Content
+- [Flexible Content Field](https://www.advancedcustomfields.com/resources/flexible-content/)
+- [Repeater Field](https://www.advancedcustomfields.com/resources/repeater/)
+- [Flexible Content Examples](https://www.advancedcustomfields.com/resources/flexible-content/)
+
+### Custom Database Tables
+- [Creating Tables with Plugins](https://developer.wordpress.org/plugins/creating-tables-with-plugins/)
+- [wpdb Class Reference](https://developer.wordpress.org/reference/classes/wpdb/)
+
+---
+
+## Need Help?
+
+- Break large features into smaller tasks when asking Claude
+- Test incrementally—don't build everything at once
+- Use browser dev tools to debug AJAX issues
+- Document your approach in CLAUDE.md as you go
+- Check your team's support channel for questions

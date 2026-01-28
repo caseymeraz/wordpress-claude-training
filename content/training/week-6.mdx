@@ -1,0 +1,595 @@
+---
+title: "Week 6: Production Integration"
+description: "Integrate Claude Code into your team workflow and production processes"
+week: 6
+order: 6
+---
+
+# Week 6: Production Integration
+
+Final week! You've learned the technical skills—now it's time to integrate Claude Code into your team's real-world workflow. This week focuses on code review, deployment checklists, documentation, and establishing standards for AI-assisted development.
+
+## Learning Objectives
+
+- Use Claude for code review process
+- Create deployment checklists with Claude
+- Document Claude workflows for team
+- Establish team standards for AI-assisted development
+
+## Time Commitment
+
+- Exercise 1: 45 minutes (Claude-Assisted Code Review)
+- Exercise 2: 45 minutes (Deployment Checklist)
+- Exercise 3: 30 minutes (Team Claude Standards)
+- **Total: ~2 hours**
+
+---
+
+## Exercise 1: Claude-Assisted Code Review (45 min)
+
+**Goal:** Review a teammate's pull request using Claude to check code quality, security, and standards compliance.
+
+**Scenario:**
+A teammate has submitted a PR that adds a new custom post type with a meta box. Use Claude to systematically review it before approving.
+
+**Requirements:**
+- Use Claude to review the PR for:
+  - Security vulnerabilities (sanitization, escaping, nonces, capabilities)
+  - Performance issues (N+1 queries, missing caching, unoptimized loops)
+  - WordPress coding standards compliance
+  - Best practices (proper hooks, enqueuing, naming conventions)
+  - Documentation quality
+- Document findings in PR comments
+- Suggest specific improvements with code examples
+- Run `/security-audit` and `/wp-perf-review` on changed files
+- Create a code review checklist for future use
+
+**Success Criteria:**
+- ✅ All security vulnerabilities identified
+- ✅ Performance issues documented with impact assessment
+- ✅ Coding standards violations noted
+- ✅ Constructive feedback with code examples provided
+- ✅ Skills commands (security, performance) run successfully
+- ✅ Code review checklist created for team
+- ✅ Findings documented in standardized format
+
+**Skills Practiced:**
+- Code review with AI assistance
+- Security awareness
+- Performance analysis
+- Constructive feedback
+- Risk assessment
+
+**Code Review Checklist Template:**
+```markdown
+## Security Review
+- [ ] All inputs sanitized (`sanitize_text_field`, `sanitize_email`, etc.)
+- [ ] All outputs escaped (`esc_html`, `esc_url`, `esc_attr`)
+- [ ] Nonce verification on form submissions
+- [ ] Capability checks before sensitive actions
+- [ ] No direct database queries without `$wpdb->prepare()`
+
+## Performance Review
+- [ ] No N+1 query problems
+- [ ] Reasonable query limits set
+- [ ] Transients used for expensive operations
+- [ ] Assets properly enqueued (not hardcoded)
+- [ ] No `posts_per_page=-1` queries
+
+## Standards Review
+- [ ] PHPCS passes with WordPress standards
+- [ ] Functions prefixed/namespaced
+- [ ] Proper hook naming conventions
+- [ ] Inline documentation present
+- [ ] No deprecated functions used
+
+## WordPress Best Practices
+- [ ] Uses WordPress functions over PHP equivalents
+- [ ] Follows file organization conventions
+- [ ] Proper text domain for translations
+- [ ] Accessibility considerations
+- [ ] Mobile responsive
+```
+
+**Ask Claude:**
+- "Review this code for security vulnerabilities"
+- "Check for performance issues and suggest optimizations"
+- "Does this follow WordPress coding standards?"
+- "What edge cases should be tested?"
+
+---
+
+## Exercise 2: Create Deployment Checklist (45 min)
+
+**Goal:** Build a comprehensive pre-deployment checklist using Claude that ensures code quality, security, and testing before production release.
+
+**Requirements:**
+- Create a deployment checklist covering:
+  - **Code Quality:** PHPCS passes, no debug code, proper documentation
+  - **Testing:** All features tested, edge cases covered, cross-browser tested
+  - **Security:** Security audit passes, no vulnerabilities, proper input validation
+  - **Performance:** Performance audit passes, assets optimized, caching configured
+  - **Database:** Migrations tested, backups taken, rollback plan ready
+  - **Configuration:** Environment variables set, API keys configured, URLs updated
+  - **Monitoring:** Error logging enabled, analytics configured, uptime monitoring active
+- Make checklist actionable (checkbox format)
+- Add rollback procedures
+- Document who is responsible for each step
+
+**Success Criteria:**
+- ✅ Comprehensive checklist covering all critical areas
+- ✅ Each item is actionable and testable
+- ✅ Rollback procedures documented
+- ✅ Responsibilities assigned
+- ✅ Checklist reviewed by at least one teammate
+- ✅ Template can be reused for future deployments
+
+**Skills Practiced:**
+- Risk assessment
+- Process documentation
+- Team coordination
+- Deployment best practices
+
+**Deployment Checklist Template:**
+```markdown
+# Pre-Deployment Checklist
+
+## Code Quality
+- [ ] PHPCS passes with no errors
+- [ ] No `var_dump()`, `console.log()`, or debug code
+- [ ] All TODOs addressed or documented
+- [ ] Code reviewed and approved
+- [ ] Version numbers updated
+
+## Testing
+- [ ] All new features tested manually
+- [ ] Automated tests pass (if applicable)
+- [ ] Edge cases tested
+- [ ] Cross-browser tested (Chrome, Firefox, Safari)
+- [ ] Mobile responsive verified
+- [ ] Forms tested with invalid inputs
+
+## Security
+- [ ] `/security-audit` passes with no critical issues
+- [ ] All user inputs sanitized
+- [ ] All outputs escaped
+- [ ] Nonces verified on forms
+- [ ] Capability checks in place
+- [ ] No sensitive data in version control
+
+## Performance
+- [ ] `/wp-perf-review` passes
+- [ ] Assets minified and concatenated
+- [ ] Images optimized
+- [ ] Caching configured
+- [ ] Database queries optimized
+- [ ] Page load time < 2 seconds
+
+## Database
+- [ ] Database backup taken
+- [ ] Migration scripts tested on staging
+- [ ] Rollback migration scripts ready
+- [ ] No direct production database changes
+
+## Configuration
+- [ ] Environment variables set in production
+- [ ] API keys configured
+- [ ] URLs updated for production domain
+- [ ] Email settings verified
+- [ ] Timezone configured
+
+## Pre-Launch
+- [ ] Staging environment matches production
+- [ ] Final full site test on staging
+- [ ] Client/stakeholder approval received
+- [ ] Team notified of deployment window
+- [ ] Rollback plan documented
+
+## Post-Deployment
+- [ ] Verify site loads correctly
+- [ ] Check error logs for issues
+- [ ] Test critical user flows
+- [ ] Monitor performance metrics
+- [ ] Confirm analytics tracking works
+
+## Rollback Procedure
+1. Restore database from backup
+2. Revert code to previous commit
+3. Clear all caches
+4. Verify site functionality
+5. Notify team of rollback
+```
+
+**Ask Claude:**
+- "Create a comprehensive deployment checklist for WordPress site"
+- "What are critical items for pre-deployment testing?"
+- "Add rollback procedures to this checklist"
+- "Organize checklist by deployment phase"
+
+---
+
+## Exercise 3: Document Team Claude Standards (30 min)
+
+**Goal:** Create team documentation that establishes when and how to use Claude Code, defining best practices and quality gates.
+
+**Requirements:**
+Document the following for your team:
+- **When to use Claude:** Appropriate use cases vs. when not to use
+- **Prompting best practices:** How to write effective prompts
+- **Code review with Claude:** When to use AI assistance in review
+- **Quality gates:** When Claude output should be manually validated
+- **Security considerations:** What to never share with Claude
+- **Skill usage:** When to use skills vs. custom prompts
+- **Documentation requirements:** How to document Claude-generated code
+
+**Success Criteria:**
+- ✅ Clear guidelines on appropriate Claude usage
+- ✅ Prompting best practices documented with examples
+- ✅ Quality gates defined (when to manually verify)
+- ✅ Security guidelines established
+- ✅ Documentation requirements specified
+- ✅ Team reviews and approves standards
+- ✅ Standards added to team handbook
+
+**Skills Practiced:**
+- Process documentation
+- Team standards creation
+- Risk assessment
+- Critical thinking about AI tools
+
+**Team Claude Standards Template:**
+```markdown
+# Claude Code: Team Standards
+
+## When to Use Claude
+
+### ✅ GOOD Use Cases
+- Scaffolding new features (CPTs, blocks, field groups)
+- Refactoring existing code
+- Debugging error messages
+- Writing documentation
+- Code review for security and performance
+- Creating repetitive boilerplate code
+- Explaining complex WordPress concepts
+
+### ❌ Don't Use Claude For
+- Critical security implementations (manually verify)
+- Production database migrations (test thoroughly)
+- Copying/pasting code without understanding
+- Replacing manual testing
+- Making architectural decisions alone
+
+## Prompting Best Practices
+
+### Write Specific Prompts
+❌ "Make this better"
+✅ "Refactor this function to use WP_Query instead of query_posts and add proper escaping"
+
+### Provide Context
+❌ "Fix this error"
+✅ "I'm getting 'Call to undefined function get_field()' on line 12 of hero.php. We're using ACF Pro 6.0."
+
+### Iterate and Refine
+1. Start with high-level goal
+2. Review Claude's approach
+3. Ask for specific improvements
+4. Test and validate
+
+### Use Skills When Applicable
+- Use `/security-audit` instead of "check for security issues"
+- Use `/wp-perf-review` instead of "check for performance problems"
+- Use `/wp-perf` for quick checks during development
+
+## Quality Gates
+
+### Always Manually Verify
+- [ ] Security implementations (nonces, sanitization, escaping)
+- [ ] Database queries and migrations
+- [ ] User authentication and authorization
+- [ ] Payment processing
+- [ ] File uploads and handling
+
+### Test Claude-Generated Code
+- [ ] Run in development environment first
+- [ ] Test edge cases manually
+- [ ] Run PHPCS and security audits
+- [ ] Verify output in browser
+- [ ] Check console for JavaScript errors
+
+### Code Review Requirements
+- All Claude-generated code must be reviewed by a human
+- Reviewer should understand the code, not just accept it
+- Security-sensitive code requires extra scrutiny
+- Performance-critical code should be benchmarked
+
+## Security Considerations
+
+### Never Share
+- API keys or credentials
+- Customer data or PII
+- Production database credentials
+- Private repository code (unless authorized)
+
+### Always Verify
+- Input sanitization is correct
+- Output escaping is appropriate
+- Nonce verification is present
+- Capability checks are in place
+
+## Documentation Requirements
+
+### For Claude-Generated Code
+```php
+/**
+ * Function description
+ *
+ * @param  string $param Description
+ * @return mixed
+ *
+ * @note Generated with Claude Code assistance [DATE]
+ * @note Reviewed by: [NAME]
+ */
+```
+
+### In CLAUDE.md
+Document prompts that worked well:
+- What you asked
+- What Claude generated
+- What you had to modify
+- Lessons learned
+
+## Skill Usage
+
+- Run `/security-audit` before every PR
+- Run `/wp-perf-review` before merging to main
+- Use `/wp-perf` during active development
+- Configure hooks to automate skill usage
+
+## Team Agreement
+
+- [ ] All team members read and understand these standards
+- [ ] Standards will be reviewed quarterly
+- [ ] New team members complete Claude Code training
+- [ ] Violations are discussed in retrospectives
+```
+
+**Ask Claude:**
+- "Help me create team standards for using AI coding assistants"
+- "What quality gates should we require for AI-generated code?"
+- "Add security considerations to these standards"
+- "Create prompting best practices guide"
+
+---
+
+## Week 6 Wrap-Up
+
+### Final Reflection
+
+Congratulations! You've completed the 6-week Claude Code training. Take a moment to reflect:
+
+1. **Most Valuable Skill:** What skill or technique will you use most often?
+2. **Biggest Challenge:** What was the hardest concept to master?
+3. **Productivity Impact:** How much time do you estimate Claude saves you weekly?
+4. **Team Integration:** How will you introduce these practices to your teammates?
+5. **Next Steps:** What Claude Code techniques do you want to explore next?
+
+### Comfort Level Check
+
+Rate your overall comfort with Claude Code (1-10):
+- Using Claude for feature development: ___
+- Code review with Claude: ___
+- Security awareness with AI assistance: ___
+- Team workflow integration: ___
+- Overall confidence in Claude Code: ___
+
+### Your Journey
+
+**Week 1:** Setup and basics
+**Week 2:** WordPress patterns (ACF, Gutenberg)
+**Week 3:** Debugging and security
+**Week 4:** Automation and quality
+**Week 5:** Advanced features
+**Week 6:** Production integration ← You are here
+
+### What's Next?
+
+**Continue Learning:**
+- Explore additional WordPress skills in the marketplace
+- Create custom skills for your team's common tasks
+- Experiment with advanced Claude Code features
+- Share knowledge with your team
+
+**Apply What You've Learned:**
+- Integrate Claude into daily workflow
+- Configure hooks for automatic quality checks
+- Contribute to team's Claude documentation
+- Mentor teammates on Claude best practices
+
+**Stay Current:**
+- Follow Claude Code updates and new features
+- Join the Claude Code community
+- Share your own tips and tricks
+- Continuously refine your prompting skills
+
+---
+
+## Complete Training Resources
+
+### Downloadable Templates
+- [CLAUDE.md Template](/downloads/CLAUDE_MD_TEMPLATE.md)
+- [Hooks Configuration Template](/downloads/HOOKS_CONFIG_TEMPLATE.json)
+- [Quick Reference Guide](/resources/quick-reference)
+
+### Skills Library
+- [WordPress Skills Package](/resources/skills)
+- [Creating Custom Skills](/resources/skills#creating-custom-skills)
+
+### Additional Guides
+- [Quick Reference](/resources/quick-reference) - Daily commands and best practices
+- [Templates Library](/resources/templates) - Reusable configurations
+
+---
+
+## Code Review Prompts Library
+
+Here are proven prompts for code review with Claude:
+
+### Security Review
+```
+Review this WordPress code for security vulnerabilities. Check for:
+1. Unescaped output
+2. Unsanitized inputs
+3. Missing nonce verification
+4. Missing capability checks
+5. SQL injection risks
+
+[paste code]
+```
+
+### Performance Review
+```
+Analyze this WordPress code for performance issues:
+1. N+1 query problems
+2. Missing caching
+3. Inefficient loops
+4. Expensive operations in loops
+5. Unnecessary database calls
+
+[paste code]
+```
+
+### Standards Review
+```
+Check this WordPress code against coding standards:
+1. PHPCS WordPress ruleset compliance
+2. Naming conventions
+3. Documentation quality
+4. File organization
+5. WordPress-specific best practices
+
+[paste code]
+```
+
+### Architecture Review
+```
+Review the architecture of this WordPress feature:
+1. Proper use of hooks and filters
+2. Separation of concerns
+3. Reusability
+4. Maintainability
+5. Scalability considerations
+
+[paste code]
+```
+
+---
+
+## Deployment Automation
+
+### Pre-Deployment Script
+
+```bash
+#!/bin/bash
+# pre-deploy.sh - Run before deploying to production
+
+echo "🚀 Pre-Deployment Checks"
+echo "======================="
+
+# Run PHPCS
+echo "▸ Running PHPCS..."
+vendor/bin/phpcs --standard=WordPress wp-content/themes/my-theme
+if [ $? -ne 0 ]; then
+    echo "❌ PHPCS failed"
+    exit 1
+fi
+
+# Run security audit
+echo "▸ Running security audit..."
+/security-audit wp-content
+if [ $? -ne 0 ]; then
+    echo "❌ Security audit failed"
+    exit 1
+fi
+
+# Run performance check
+echo "▸ Running performance check..."
+/wp-perf-review wp-content
+if [ $? -ne 0 ]; then
+    echo "⚠️  Performance issues detected - review before deploying"
+fi
+
+# Check for debug code
+echo "▸ Checking for debug code..."
+if grep -r "var_dump\|console\.log\|error_log" wp-content/themes/my-theme; then
+    echo "❌ Debug code found - remove before deploying"
+    exit 1
+fi
+
+echo "✅ All pre-deployment checks passed"
+```
+
+---
+
+## Additional Resources
+
+### Code Review
+- [WordPress Code Review Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/)
+- [Pull Request Best Practices](https://github.com/skills/review-pull-requests)
+
+### Deployment
+- [WordPress Deployment Best Practices](https://developer.wordpress.org/advanced-administration/upgrade/deploying/)
+- [Database Migration Guide](https://developer.wordpress.org/advanced-administration/upgrade/migrating/)
+
+### Team Collaboration
+- [Documentation Best Practices](https://documentation.divio.com/)
+- [Code Standards](https://developer.wordpress.org/coding-standards/)
+
+---
+
+## Final Thoughts
+
+You've invested 12 hours in this training and gained a powerful development tool. Claude Code isn't magic—it's most effective when you:
+
+- **Understand what you're building:** AI amplifies your skills, it doesn't replace them
+- **Verify and test everything:** Always review and test Claude's output
+- **Document your process:** Help your future self and teammates
+- **Stay security-conscious:** Some things require manual verification
+- **Keep learning:** Claude improves, and so should your skills
+
+Thank you for completing this training. Now go build something amazing! 🚀
+
+---
+
+## Certificate of Completion
+
+**Trainee:** _______________
+**Completion Date:** _______________
+**Weeks Completed:** 6/6
+**Total Training Hours:** 12 hours
+
+**Skills Mastered:**
+- ✅ Claude Code setup and configuration
+- ✅ WordPress development with AI assistance
+- ✅ Security and performance optimization
+- ✅ Automated quality checks
+- ✅ Advanced feature development
+- ✅ Team workflow integration
+
+**Next Steps:**
+- [ ] Integrate Claude into daily workflow
+- [ ] Configure team hooks and standards
+- [ ] Share knowledge with teammates
+- [ ] Continue exploring advanced features
+
+---
+
+## Need Help?
+
+- Review all training materials in this site
+- Check the [Quick Reference](/resources/quick-reference)
+- Explore the [Skills Library](/resources/skills)
+- Download [Templates](/resources/templates)
+- Ask in your team's support channel
+- Keep your CLAUDE.md updated with learnings
+
+**Remember:** The best way to master Claude Code is to use it daily. Start small, iterate, and build confidence over time.

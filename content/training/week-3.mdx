@@ -1,0 +1,274 @@
+---
+title: "Week 3: Debugging & Security"
+description: "Debug WordPress errors and fix security vulnerabilities with Claude Code"
+week: 3
+order: 3
+---
+
+# Week 3: Debugging & Security
+
+This week gets real. You'll debug actual WordPress errors, refactor messy legacy code, and fix security vulnerabilities. These are the scenarios you'll face in production—let's practice with Claude's help.
+
+## Learning Objectives
+
+- Debug real WordPress errors with Claude
+- Document and refactor legacy code
+- Identify and fix security vulnerabilities
+- Understand WordPress anti-patterns
+
+## Time Commitment
+
+- Exercise 1: 30 minutes (Debug Fatal Error)
+- Exercise 2: 45 minutes (Refactor Legacy Code)
+- Exercise 3: 45 minutes (Security Audit & Fix)
+- **Total: ~2 hours**
+
+---
+
+## Exercise 1: Debug Fatal Error (30 min)
+
+**Task:** Fix a fatal error: `Call to undefined function get_field()`
+
+**Scenario:**
+You've inherited a theme that's throwing a fatal error on the homepage. The error log shows:
+```
+Fatal error: Uncaught Error: Call to undefined function get_field() in /wp-content/themes/my-theme/template-parts/hero.php:12
+```
+
+**Requirements:**
+- Use Claude to diagnose the root cause
+- Identify which plugin is missing or not activated
+- Implement a fallback solution that works with or without ACF
+- Add proper error handling
+- Document the fix in CLAUDE.md
+
+**Success Criteria:**
+- ✅ Homepage loads without fatal error
+- ✅ Code works whether ACF is active or not
+- ✅ Proper `function_exists()` check added
+- ✅ Fallback values display correctly
+- ✅ Solution documented
+
+**Skills Practiced:**
+- Error diagnosis with Claude
+- Defensive programming
+- WordPress plugin dependencies
+- Error handling patterns
+
+**Hints:**
+- Ask Claude: "This error means ACF isn't loaded. How do I check if it exists?"
+- Use `function_exists('get_field')` before calling ACF functions
+- Provide sensible defaults when ACF isn't available
+
+---
+
+## Exercise 2: Document & Refactor Legacy Code (45 min)
+
+**Task:** Refactor a poorly-written theme file with deprecated functions and bad practices.
+
+**Scenario:**
+You've found this code in `template-parts/blog-grid.php`:
+
+```php
+<?php
+query_posts('posts_per_page=-1&cat=5');
+while (have_posts()) : the_post();
+    echo '<div class="post">';
+    echo '<h2>' . get_the_title() . '</h2>';
+    echo '<p>' . $_POST['excerpt_length'] . '</p>';
+    echo '<a href="' . get_permalink() . '">Read more</a>';
+    echo '</div>';
+endwhile;
+wp_reset_query();
+?>
+```
+
+**Requirements:**
+- Replace deprecated `query_posts()` with `WP_Query`
+- Fix the security vulnerability (`$_POST` without sanitization)
+- Add proper escaping to all output
+- Remove the unlimited posts query (`-1`)
+- Add pagination
+- Make the category configurable
+- Document what each fix addresses
+
+**Success Criteria:**
+- ✅ No deprecated functions used
+- ✅ All output properly escaped
+- ✅ No security vulnerabilities
+- ✅ Posts limited to reasonable number
+- ✅ Code follows WordPress coding standards
+- ✅ All changes documented
+
+**Skills Practiced:**
+- Identifying WordPress anti-patterns
+- Security awareness (sanitization, escaping)
+- Proper query usage
+- Code refactoring with Claude
+
+**What's Wrong:**
+- `query_posts()` is deprecated and breaks main query
+- `posts_per_page=-1` loads ALL posts (performance issue)
+- `$_POST` used directly without sanitization (security issue)
+- `get_the_title()` not escaped (XSS vulnerability)
+- `get_permalink()` not escaped
+- Hardcoded category ID
+
+---
+
+## Exercise 3: Security Audit & Fix (45 min)
+
+**Task:** Run a security audit and fix all vulnerabilities found in an admin settings page.
+
+**Scenario:**
+You have an admin page (`admin/settings.php`) that handles form submissions. Use the `/security-audit` skill to find issues.
+
+**Requirements:**
+- Run `/security-audit` on the admin directory
+- Fix all security vulnerabilities identified:
+  - Missing nonce verification
+  - Unescaped output
+  - Missing capability checks
+  - Unsanitized input
+- Test each fix
+- Document the security principles
+
+**Success Criteria:**
+- ✅ `/security-audit` command runs successfully
+- ✅ All identified vulnerabilities fixed
+- ✅ Nonce verification added to form handler
+- ✅ Capability check prevents unauthorized access
+- ✅ All inputs sanitized (text, URLs, numbers)
+- ✅ All outputs escaped
+- ✅ Security principles documented
+
+**Skills Practiced:**
+- Using `/security-audit` skill
+- WordPress security functions
+- CSRF protection with nonces
+- Input sanitization
+- Output escaping
+- Capability checks
+
+**Key Security Functions to Use:**
+```php
+// Nonce verification
+wp_verify_nonce($_POST['_wpnonce'], 'my_action');
+
+// Capability check
+current_user_can('manage_options');
+
+// Input sanitization
+sanitize_text_field($_POST['field']);
+sanitize_url($_POST['url']);
+absint($_POST['number']);
+
+// Output escaping
+esc_html($text);
+esc_url($url);
+esc_attr($attribute);
+```
+
+---
+
+## Week 3 Wrap-Up
+
+### Reflection Questions
+
+1. **Error Debugging**: How did Claude help you identify the root cause faster than manual debugging?
+2. **Legacy Code**: What were the biggest issues in the legacy code? How would you prevent them?
+3. **Security**: Which security vulnerability seemed most critical? Why?
+4. **Skills Development**: Are you getting more comfortable asking Claude for specific fixes?
+
+### Comfort Level Check
+
+Rate your comfort with these Week 3 skills (1-10):
+- Debugging WordPress errors with Claude: ___
+- Identifying code anti-patterns: ___
+- WordPress security best practices: ___
+- Using `/security-audit` skill: ___
+
+### What's Next?
+
+**Week 4 Preview:** Automation & Quality
+- Configure Claude Code hooks for automated checks
+- Integrate PHPCS into your workflow
+- Set up automated testing triggers
+- Build team quality standards
+
+---
+
+## WordPress Security Checklist
+
+Use this checklist when reviewing code (with or without Claude):
+
+### Input Validation
+- [ ] All `$_POST` / `$_GET` / `$_REQUEST` data sanitized
+- [ ] File uploads validated (type, size, extension)
+- [ ] URLs validated with `esc_url_raw()`
+- [ ] Numbers cast with `absint()` or `intval()`
+
+### Output Escaping
+- [ ] All echoed text uses `esc_html()`
+- [ ] All URLs use `esc_url()`
+- [ ] All attributes use `esc_attr()`
+- [ ] Database queries use `$wpdb->prepare()`
+
+### Authorization
+- [ ] Nonce verification on all form submissions
+- [ ] Capability checks before sensitive actions
+- [ ] AJAX requests verify nonces
+- [ ] Admin pages check `current_user_can()`
+
+### Common Vulnerabilities
+- [ ] No SQL injection (use `$wpdb->prepare()`)
+- [ ] No XSS (escape all output)
+- [ ] No CSRF (use nonces)
+- [ ] No unauthorized file access
+- [ ] No direct database queries without sanitization
+
+---
+
+## Anti-Patterns to Avoid
+
+### ❌ DON'T USE
+- `query_posts()` - Use `WP_Query` or `get_posts()`
+- `$_POST` directly - Always sanitize first
+- `echo` without escaping - Use `esc_html()`, `esc_url()`, etc.
+- `posts_per_page=-1` - Limit queries for performance
+- `@` error suppression - Fix the underlying issue
+- `eval()` - Never use, major security risk
+
+### ✅ DO USE
+- `WP_Query` for custom queries
+- `sanitize_*()` for all inputs
+- `esc_*()` for all outputs
+- Reasonable query limits
+- Proper error handling
+- WordPress functions over PHP equivalents
+
+---
+
+## Additional Resources
+
+### Debugging
+- [WordPress Debugging Guide](https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/)
+- [Common WordPress Errors](https://wordpress.org/support/article/common-wordpress-errors/)
+
+### Security
+- [WordPress Security Handbook](https://developer.wordpress.org/plugins/security/)
+- [Data Validation](https://developer.wordpress.org/apis/security/data-validation/)
+- [Nonces](https://developer.wordpress.org/apis/security/nonces/)
+
+### Code Quality
+- [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/)
+- [PHP_CodeSniffer for WordPress](https://github.com/WordPress/WordPress-Coding-Standards)
+
+---
+
+## Need Help?
+
+- Ask Claude to explain any security concepts you don't understand
+- Use `/security-audit` liberally—it's a great learning tool
+- Document every fix in your CLAUDE.md
+- Check your team's support channel for questions
