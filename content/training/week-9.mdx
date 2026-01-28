@@ -92,14 +92,12 @@ curl -X POST https://your-site.com/wp-json/jwt-auth/v1/token \
 Ask Claude to create a custom endpoint:
 
 **Prompt:**
-```
-Create a custom WordPress REST API endpoint at /wp-json/myapp/v1/posts that:
-1. Returns posts with custom fields
-2. Requires JWT authentication
-3. Accepts query parameters (posts_per_page, category)
-4. Returns proper error responses
-5. Includes custom meta data in response
-```
+> Create a custom WordPress REST API endpoint at /wp-json/myapp/v1/posts that:
+> 1. Returns posts with custom fields
+> 2. Requires JWT authentication
+> 3. Accepts query parameters (posts_per_page, category)
+> 4. Returns proper error responses
+> 5. Includes custom meta data in response
 
 **Example Implementation:**
 ```php
@@ -329,16 +327,14 @@ wp plugin install wpgraphql-acf --activate
 
 **Create ACF Field Group:**
 Ask Claude:
-```
-Create an ACF field group for team members with:
-- Job Title (text)
-- Bio (textarea)
-- LinkedIn URL (url)
-- Years Experience (number)
-- Skills (repeater with skill name)
-
-Make sure it's exposed to GraphQL.
-```
+> Create an ACF field group for team members with:
+> - Job Title (text)
+> - Bio (textarea)
+> - LinkedIn URL (url)
+> - Years Experience (number)
+> - Skills (repeater with skill name)
+>
+> Make sure it's exposed to GraphQL.
 
 **Query ACF Fields:**
 ```graphql
@@ -730,7 +726,7 @@ vercel --prod
 - ✅ Individual post pages work dynamically
 - ✅ ISR implemented with 1-hour revalidation
 - ✅ Images optimized with Next.js Image component
-- ✅ Fast page loads (<1s LCP)
+- ✅ Fast page loads (less than 1s LCP)
 - ✅ SEO metadata correct
 - ✅ Deployed to Vercel production
 
