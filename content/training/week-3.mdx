@@ -25,15 +25,40 @@ This week gets real. You'll debug actual WordPress errors, refactor messy legacy
 
 ---
 
+## Setup: Copy Exercise Files
+
+Before starting, copy the Week 3 exercise files from the training repository to your test WordPress installation:
+
+```bash
+# Navigate to the training resources repository
+cd ~/wordpress-claude-training-resources
+
+# Copy exercise files to your WordPress theme
+cp -r exercises/week-3/* /path/to/wordpress/wp-content/themes/your-theme/template-parts/
+
+# Or for a plugin
+cp -r exercises/week-3/* /path/to/wordpress/wp-content/plugins/your-plugin/includes/
+```
+
+**Repository:** https://github.com/caseymeraz/wordpress-claude-training-resources
+
+Each exercise file contains intentional bugs for hands-on debugging practice.
+
+---
+
 ## Exercise 1: Debug Fatal Error (30 min)
 
 **Task:** Fix a fatal error: `Call to undefined function get_field()`
+
+**File:** `exercises/week-3/exercise-1-fatal-error/hero.php`
 
 **Scenario:**
 You've inherited a theme that's throwing a fatal error on the homepage. The error log shows:
 ```
 Fatal error: Uncaught Error: Call to undefined function get_field() in /wp-content/themes/my-theme/template-parts/hero.php:12
 ```
+
+This file is in your cloned training resources repository.
 
 **Requirements:**
 - Use Claude to diagnose the root cause
@@ -64,10 +89,12 @@ Fatal error: Uncaught Error: Call to undefined function get_field() in /wp-conte
 
 ## Exercise 2: Document & Refactor Legacy Code (45 min)
 
+**File:** `exercises/week-3/exercise-2-legacy-code/blog-grid.php`
+
 **Task:** Refactor a poorly-written theme file with deprecated functions and bad practices.
 
 **Scenario:**
-You've found this code in `template-parts/blog-grid.php`:
+Open the file from your training repository. It contains 8 intentional bugs:
 
 ```php
 <?php
@@ -118,10 +145,14 @@ wp_reset_query();
 
 ## Exercise 3: Security Audit & Fix (45 min)
 
+**Files:**
+- `exercises/week-3/exercise-3-security-audit/admin-settings.php`
+- `exercises/week-3/exercise-3-security-audit/settings-page-view.php`
+
 **Task:** Run a security audit and fix all vulnerabilities found in an admin settings page.
 
 **Scenario:**
-You have an admin page (`admin/settings.php`) that handles form submissions. Use the `/security-audit` skill to find issues.
+These files contain **13 intentional security vulnerabilities**. Use the `/security-audit` skill to find and fix them.
 
 **Requirements:**
 - Run `/security-audit` on the admin directory

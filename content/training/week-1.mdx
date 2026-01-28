@@ -69,10 +69,14 @@ CLAUDE.md is a context file that tells Claude Code about your project:
 
 ### Steps
 
-1. **Fork the training resources repository** (if your team provides one):
-   - Repository location will be provided by your team lead
-   - Clone your forked copy to your local machine
-   - If no repository is provided, you can skip this step
+1. **Fork the training resources repository**:
+   - Visit: https://github.com/caseymeraz/wordpress-claude-training-resources
+   - Click the "Fork" button to create your own copy
+   - Clone your fork:
+     ```bash
+     git clone https://github.com/YOUR-USERNAME/wordpress-claude-training-resources.git
+     cd wordpress-claude-training-resources
+     ```
 
 2. **Navigate to your primary WordPress project**:
    ```bash
@@ -82,8 +86,10 @@ CLAUDE.md is a context file that tells Claude Code about your project:
 
 3. **Copy the template**:
    ```bash
-   cp /path/to/wordpress-claude-resources/.claude/CLAUDE_MD_TEMPLATE.md ./.claude/CLAUDE.md
+   cp ~/wordpress-claude-training-resources/.claude/CLAUDE_MD_TEMPLATE.md ./.claude/CLAUDE.md
    ```
+
+   (Adjust path if you cloned the repository elsewhere)
 
 4. **Customize for your project**:
    Open `.claude/CLAUDE.md` and update:
