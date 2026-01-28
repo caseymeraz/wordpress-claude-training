@@ -15,13 +15,15 @@ Welcome to Week 2! This week focuses on building WordPress features with Claude 
 - Build basic Gutenberg block with server-side rendering
 - Install and use WordPress Skills package
 - Practice iterative refinement with Claude
+- **Convert Figma designs to WordPress in under 90 minutes (8x faster than manual)**
 
 ## Time Commitment
 
 - Exercise 1: 30 minutes (ACF Field Group)
 - Exercise 2: 45 minutes (Gutenberg Block)
 - Exercise 3: 30 minutes (WordPress Skills)
-- **Total: ~2 hours**
+- Exercise 4: 90 minutes (Figma to WordPress with ACF)
+- **Total: ~3 hours**
 
 ---
 
@@ -131,6 +133,520 @@ Welcome to Week 2! This week focuses on building WordPress features with Claude 
 
 ---
 
+## Exercise 4: Figma Design to WordPress with ACF (90 min)
+
+**Task:** Implement a complete Figma design as a WordPress page using Claude Code and ACF.
+
+**Context:** Most WordPress agencies receive Figma designs from clients or designers. This exercise teaches you to convert designs to production-ready WordPress pages 5-10x faster with Claude's help.
+
+### Time Comparison: The Figma to WordPress Reality
+
+**Before Claude Code (Manual Development):**
+- 2 hours: Export assets, create folder structure
+- 4 hours: Write HTML/CSS from design
+- 3 hours: Convert to WordPress template
+- 2 hours: Create ACF field groups
+- 1 hour: Test and debug responsiveness
+- **Total: 12 hours (1.5 days of work)**
+
+**After Claude Code (AI-Assisted):**
+- 15 min: Claude analyzes Figma, suggests structure
+- 30 min: Claude generates ACF field groups
+- 30 min: Claude creates WordPress template
+- 15 min: Test and minor adjustments
+- **Total: 90 minutes (8x faster!)**
+
+---
+
+### Part 1: Design Analysis & Planning (15 min)
+
+**Scenario:** You've received a Figma design for a "Services" page with:
+- Hero section (background image, headline, subheadline)
+- 3-column services grid (icon, title, description for each service)
+- Call-to-action section with button
+
+**Prompt for Claude:**
+```
+I have a Figma design for a "Services" page. The design has:
+- Hero section with background image, headline, subheadline
+- 3-column services grid (icon, title, description for each)
+- Call-to-action section with button
+
+Please analyze this design and:
+1. Suggest WordPress template structure
+2. Recommend ACF field group organization
+3. Identify reusable components
+4. List assets I need to export from Figma
+```
+
+**Expected Claude Output:**
+- File structure recommendation (template file, CSS file, assets folder)
+- ACF field groups (Hero Group, Services Repeater, CTA Group)
+- Component breakdown and organization
+- Asset export list with specifications
+
+**What You'll Learn:**
+- How to describe designs to Claude for optimal results
+- ACF field group architecture planning
+- Component-based thinking for WordPress
+- Asset optimization strategy
+
+---
+
+### Part 2: ACF Field Group Creation (30 min)
+
+**Prompt for Claude:**
+```
+Create ACF field groups for this Services page:
+
+Hero Section:
+- Background image
+- Headline (h1)
+- Subheadline (p)
+
+Services (repeatable):
+- Icon (image)
+- Service title
+- Service description
+
+CTA Section:
+- CTA headline
+- Button text
+- Button URL
+
+Use best practices:
+- Group fields logically
+- Use appropriate field types
+- Add helpful instructions for editors
+- Consider the WordPress editor experience
+```
+
+**Expected Claude Output:**
+
+Complete ACF PHP code following this structure:
+
+```php
+<?php
+/**
+ * Services Page ACF Field Groups
+ */
+
+acf_add_local_field_group(array(
+    'key' => 'group_services_page',
+    'title' => 'Services Page Fields',
+    'fields' => array(
+        // Hero Group
+        array(
+            'key' => 'field_hero_group',
+            'label' => 'Hero Section',
+            'name' => 'hero_section',
+            'type' => 'group',
+            'instructions' => 'Main hero section content',
+            'sub_fields' => array(
+                array(
+                    'key' => 'field_hero_bg',
+                    'label' => 'Background Image',
+                    'name' => 'background_image',
+                    'type' => 'image',
+                    'instructions' => 'Recommended size: 1920x800px',
+                    'return_format' => 'array',
+                    'preview_size' => 'medium',
+                ),
+                array(
+                    'key' => 'field_hero_headline',
+                    'label' => 'Headline',
+                    'name' => 'headline',
+                    'type' => 'text',
+                    'instructions' => 'Main page headline (h1)',
+                ),
+                array(
+                    'key' => 'field_hero_subheadline',
+                    'label' => 'Subheadline',
+                    'name' => 'subheadline',
+                    'type' => 'textarea',
+                    'rows' => 2,
+                    'instructions' => 'Supporting text under headline',
+                ),
+            ),
+        ),
+        // Services Repeater
+        array(
+            'key' => 'field_services_repeater',
+            'label' => 'Services',
+            'name' => 'services',
+            'type' => 'repeater',
+            'instructions' => 'Add 3-6 services',
+            'sub_fields' => array(
+                array(
+                    'key' => 'field_service_icon',
+                    'label' => 'Service Icon',
+                    'name' => 'icon',
+                    'type' => 'image',
+                    'instructions' => 'Square icon, 200x200px recommended',
+                    'return_format' => 'array',
+                ),
+                array(
+                    'key' => 'field_service_title',
+                    'label' => 'Service Title',
+                    'name' => 'title',
+                    'type' => 'text',
+                ),
+                array(
+                    'key' => 'field_service_desc',
+                    'label' => 'Service Description',
+                    'name' => 'description',
+                    'type' => 'textarea',
+                    'rows' => 3,
+                ),
+            ),
+            'min' => 3,
+            'max' => 6,
+            'layout' => 'block',
+            'button_label' => 'Add Service',
+        ),
+        // CTA Group
+        array(
+            'key' => 'field_cta_group',
+            'label' => 'Call to Action',
+            'name' => 'cta_section',
+            'type' => 'group',
+            'sub_fields' => array(
+                array(
+                    'key' => 'field_cta_headline',
+                    'label' => 'CTA Headline',
+                    'name' => 'headline',
+                    'type' => 'text',
+                ),
+                array(
+                    'key' => 'field_cta_button_text',
+                    'label' => 'Button Text',
+                    'name' => 'button_text',
+                    'type' => 'text',
+                    'default_value' => 'Get Started',
+                ),
+                array(
+                    'key' => 'field_cta_button_url',
+                    'label' => 'Button URL',
+                    'name' => 'button_url',
+                    'type' => 'url',
+                ),
+            ),
+        ),
+    ),
+    'location' => array(
+        array(
+            array(
+                'param' => 'page_template',
+                'operator' => '==',
+                'value' => 'template-services.php',
+            ),
+        ),
+    ),
+));
+```
+
+**Best Practices Highlighted:**
+- **Group fields** for related content (hero_section, cta_section)
+- **Repeater fields** for dynamic lists (services)
+- **Helpful instructions** for content editors
+- **Min/max limits** to maintain design integrity
+- **Return formats** optimized for template usage
+- **Location rules** to attach fields to specific templates
+
+---
+
+### Part 3: WordPress Template Creation (30 min)
+
+**Prompt for Claude:**
+```
+Create a WordPress page template that uses the ACF fields we defined.
+
+Requirements:
+- Use modern WordPress best practices
+- Pixel-perfect match to Figma design (assume desktop-first, then responsive)
+- Fully responsive (mobile, tablet, desktop)
+- Accessible HTML (proper heading hierarchy, alt text)
+- Optimized images (use WordPress image sizes, lazy loading)
+- Proper escaping for all output
+
+Output:
+1. template-services.php (complete template)
+2. Associated CSS/SCSS for the page
+3. Any required JavaScript (if needed)
+```
+
+**Expected Claude Output:**
+
+```php
+<?php
+/**
+ * Template Name: Services Page
+ *
+ * @package YourTheme
+ */
+
+get_header();
+
+// Get ACF fields
+$hero = get_field('hero_section');
+$services = get_field('services');
+$cta = get_field('cta_section');
+?>
+
+<main id="main-content" class="services-page">
+
+    <?php if ($hero) : ?>
+    <!-- Hero Section -->
+    <section class="hero-section" style="background-image: url('<?php echo esc_url($hero['background_image']['url']); ?>')">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-headline"><?php echo esc_html($hero['headline']); ?></h1>
+                <p class="hero-subheadline"><?php echo esc_html($hero['subheadline']); ?></p>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <?php if ($services) : ?>
+    <!-- Services Section -->
+    <section class="services-section">
+        <div class="container">
+            <div class="services-grid">
+                <?php foreach ($services as $service) : ?>
+                    <div class="service-card">
+                        <?php if ($service['icon']) : ?>
+                            <img src="<?php echo esc_url($service['icon']['sizes']['medium']); ?>"
+                                 alt="<?php echo esc_attr($service['title']); ?> icon"
+                                 class="service-icon"
+                                 loading="lazy">
+                        <?php endif; ?>
+                        <h3 class="service-title"><?php echo esc_html($service['title']); ?></h3>
+                        <p class="service-description"><?php echo esc_html($service['description']); ?></p>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <?php if ($cta) : ?>
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-headline"><?php echo esc_html($cta['headline']); ?></h2>
+                <a href="<?php echo esc_url($cta['button_url']); ?>"
+                   class="btn btn-primary">
+                    <?php echo esc_html($cta['button_text']); ?>
+                </a>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
+</main>
+
+<?php get_footer(); ?>
+```
+
+**With accompanying SCSS:**
+
+```scss
+// services-page.scss
+
+.services-page {
+    // Hero Section
+    .hero-section {
+        min-height: 500px;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            text-align: center;
+        }
+
+        .hero-headline {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 1rem;
+        }
+
+        .hero-subheadline {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    }
+
+    // Services Section
+    .services-section {
+        padding: 5rem 0;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .service-card {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: translateY(-5px);
+        }
+    }
+
+    .service-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.5rem;
+    }
+
+    .service-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .service-description {
+        color: #666;
+        line-height: 1.6;
+    }
+
+    // CTA Section
+    .cta-section {
+        background: #f8f9fa;
+        padding: 4rem 0;
+        text-align: center;
+    }
+
+    .cta-headline {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 1rem 2rem;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background 0.3s ease;
+
+        &:hover {
+            background: #0056b3;
+        }
+    }
+}
+```
+
+**Key WordPress Best Practices:**
+- ✅ Proper escaping (`esc_html()`, `esc_url()`, `esc_attr()`)
+- ✅ WordPress image sizes for optimization
+- ✅ `loading="lazy"` for performance
+- ✅ Semantic HTML with proper heading hierarchy
+- ✅ Accessible alt text for images
+- ✅ Conditional rendering (checks if fields exist)
+- ✅ Responsive CSS with `clamp()` and grid layout
+
+---
+
+### Part 4: Testing & Refinement (15 min)
+
+**Testing Checklist:**
+
+- [ ] **Visual Match**: Design matches Figma pixel-perfectly
+- [ ] **Responsive**: Works on mobile (375px), tablet (768px), desktop (1440px)
+- [ ] **ACF Admin**: Fields appear correctly in WordPress editor
+- [ ] **Content Editing**: Non-technical users can update all content easily
+- [ ] **Accessibility**:
+  - [ ] All images have alt text
+  - [ ] Proper heading hierarchy (h1 → h2 → h3)
+  - [ ] Sufficient color contrast
+- [ ] **Performance**:
+  - [ ] Images optimized and lazy-loaded
+  - [ ] No console errors
+  - [ ] Page loads in under 2 seconds
+- [ ] **Code Quality**:
+  - [ ] All output escaped properly
+  - [ ] No PHP errors or warnings
+  - [ ] PHPCS compliant
+
+**Common Issues & Fixes:**
+
+**Issue 1: Mobile layout breaks at specific breakpoint**
+```
+Prompt: "The services grid is breaking on mobile at 768px.
+Service cards are too narrow and text is cramped. Fix the responsive CSS."
+```
+
+**Issue 2: Hero image not covering full section**
+```
+Prompt: "The hero background image isn't covering the full section.
+It should be full-width with proper aspect ratio on all devices."
+```
+
+**Issue 3: ACF fields not appearing in editor**
+```
+Prompt: "My ACF fields aren't showing in the WordPress editor.
+The location rule is set to 'template-services.php' but I don't see the fields."
+```
+
+---
+
+### Success Criteria
+
+By the end of this exercise, you should have:
+
+- ✅ **Complete Figma design** implemented in under 90 minutes
+- ✅ **ACF field groups** created with proper structure (Group, Repeater fields)
+- ✅ **WordPress template** that matches design pixel-perfectly
+- ✅ **Fully responsive** layout across mobile, tablet, desktop
+- ✅ **Content editable** by non-technical users in WordPress admin
+- ✅ **Code follows** WordPress best practices (escaping, accessibility, performance)
+- ✅ **Understand** how to repeat this process for future client designs
+
+### Skills Practiced
+
+- **Design Analysis**: Breaking down visual designs into components and data structures
+- **ACF Architecture**: Designing field groups (Group fields, Repeater fields, field types)
+- **WordPress Templates**: Creating custom page templates with proper PHP practices
+- **Responsive CSS**: Building mobile-first layouts that work across devices
+- **Asset Optimization**: Using WordPress image sizes and lazy loading
+- **Client Handoff**: Creating editor-friendly experiences for content updates
+- **Prompt Engineering**: Describing requirements to Claude for optimal code generation
+
+### Real-World Impact
+
+**This skill alone can transform your agency:**
+
+- **Take on 3x more projects** without hiring (12 hours → 90 minutes per design)
+- **Premium pricing** for "custom development" that takes 90 minutes
+- **Say "yes" to complex designs** other agencies turn down
+- **Ship faster than competitors** (1-2 day turnaround vs their 1-2 weeks)
+- **Work-life balance** (finish client work in 40-hour weeks instead of 60)
+
+**Client testimonial example:**
+> "We sent the same Figma design to 3 agencies. Agency A quoted 2 weeks and $4,000. Agency B quoted 1 week and $3,000. Your agency delivered it in 2 days for $1,500 and it was pixel-perfect. You're our go-to partner now."
+
+---
+
 ## Week 2 Wrap-Up
 
 ### Reflection Questions
@@ -139,6 +655,7 @@ Welcome to Week 2! This week focuses on building WordPress features with Claude 
 2. **Block Development**: What was the most challenging part of creating the Gutenberg block?
 3. **Performance**: What performance issue did you fix? How much impact do you think it has?
 4. **Skills Usage**: How useful was the `/wp-perf-review` output? Was it actionable?
+5. **Figma Conversion**: How long did it take you to complete Exercise 4? How does this compare to your previous manual workflow?
 
 ### Comfort Level Check
 
@@ -147,6 +664,7 @@ Rate your comfort with these Week 2 skills (1-10):
 - Building Gutenberg blocks: ___
 - Using WordPress Skills package: ___
 - Performance optimization awareness: ___
+- Converting Figma designs to WordPress: ___
 
 ### What's Next?
 
