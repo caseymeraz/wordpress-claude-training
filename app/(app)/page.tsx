@@ -5,6 +5,7 @@ import { ArrowRight, BookOpen, GraduationCap, TrendingUp, Zap, Rocket, Heart } f
 import { ROICalculator } from '@/components/dashboard/roi-calculator';
 
 export default function HomePage() {
+  // Force cache clear - updated 2026-01-28
   return (
     <div className="space-y-8">
       {/* Hero section */}
